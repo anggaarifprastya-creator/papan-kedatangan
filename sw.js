@@ -1,50 +1,31 @@
-// Service Worker untuk PWA Kereta SBY - v9
-const CACHE = 'kereta-sby-v9';
-const CORE = [
-  './',
-  './index.html',
-  './manifest.webmanifest',
-  './icon-192.png',
-  './icon-512.png'
-];
-
-self.addEventListener('install', (e) => {
-  e.waitUntil(
-    caches.open(CACHE).then((c) => c.addAll(CORE)).then(() => self.skipWaiting())
-  );
+/* SBY PWA Service Worker — app shell saja. Data jadwal TIDAK di-cache, selalu network. */
+var CACHE = 'sby-papan-v1';
+var SHELL = ['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./icon-maskable-512.png','./apple-touch-icon.png'];
+self.addEventListener('install', function(e){
+  e.waitUntil(caches.open(CACHE).then(function(c){ return c.addAll(SHELL); }).then(function(){ return self.skipWaiting(); }));
 });
-
-self.addEventListener('activate', (e) => {
-  e.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.map((k) => (k !== CACHE ? caches.delete(k) : null)))
-    ).then(() => self.clients.claim())
-  );
+self.addEventListener('activate', function(e){
+  e.waitUntil(caches.keys().then(function(keys){
+    return Promise.all(keys.map(function(k){ if(k!==CACHE) return caches.delete(k); }));
+  }).then(function(){ return self.clients.claim(); }));
 });
-
-// Strategi: Cache-first untuk file lokal, Network-first untuk data jadwal (biar jadwal tetap fresh)
-self.addEventListener('fetch', (e) => {
-  const url = new URL(e.request.url);
-  // Jangan cache request ke API eksternal / jadwal live - langsung ke network
-  if (url.origin !== location.origin) {
-    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+self.addEventListener('fetch', function(e){
+  var req = e.request;
+  if(req.method !== 'GET') return;
+  var url = new URL(req.url);
+  /* Lintas origin (API jadwal dll) = network saja, jangan di-cache. */
+  if(url.origin !== self.location.origin) return;
+  /* Navigasi: network dulu, kalau offline pakai index.html dari cache. */
+  if(req.mode === 'navigate'){
+    e.respondWith(fetch(req).catch(function(){ return caches.match('./index.html'); }));
     return;
   }
-  e.respondWith(
-    caches.match(e.request).then((cached) => {
-      // Untuk HTML, utamakan network biar update terbaru, fallback ke cache kalau offline
-      if (e.request.mode === 'navigate' || e.request.destination === 'document') {
-        return fetch(e.request).then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(e.request, copy));
-          return res;
-        }).catch(() => cached || caches.match('./index.html'));
-      }
-      return cached || fetch(e.request).then((res) => {
-        const copy = res.clone();
-        caches.open(CACHE).then((c) => c.put(e.request, copy));
-        return res;
-      });
-    })
-  );
+  /* File shell: stale-while-revalidate. Selain itu: network saja. */
+  var isShell = SHELL.some(function(p){ return url.pathname.endsWith(p.replace('./','')); }) || url.pathname.endsWith('/') || url.pathname.endsWith('/index.html');
+  if(isShell){
+    e.respondWith(caches.match(req).then(function(hit){
+      var net = fetch(req).then(function(res){ if(res && res.ok){ var copy=res.clone(); caches.open(CACHE).then(function(c){ c.put(req, copy); }); } return res; }).catch(function(){ return hit; });
+      return hit || net;
+    }));
+  }
 });

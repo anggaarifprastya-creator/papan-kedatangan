@@ -1,22 +1,19 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="light" class="light" style="color-scheme: light only; background-color:#F8FAFC;">
+<html lang="id" data-theme="light" class="light">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <!-- V4 GitHub Anti-Paksa 2026-11-21 - perbaikan loading muter -->
-    <meta name="theme-color" content="#F8FAFC">
-  <!-- PWA: bisa diinstal + layar penuh -->
-  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <meta name="theme-color" content="#F8FAFC">
+  <link rel="manifest" href="./manifest.webmanifest">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Kereta SBY">
-  <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
-  <meta name="color-scheme" content="light only">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+  <script id="sby-theme-early">
+  /* Tema default = TERANG. Hanya baca pilihan toggle dari localStorage. TIDAK PERNAH baca mode malam perangkat. */
+  (function(){try{var keys=["theme","sbyRailBoardTheme","sby-rail-theme","mode"],v=null;for(var i=0;i<keys.length;i++){try{var x=localStorage.getItem(keys[i]);if(x==="dark"||x==="light"){v=x;break;}}catch(e){}}if(!v)v="light";var d=document.documentElement;var dark=v==="dark";d.setAttribute("data-theme",v);d.classList.remove(dark?"light":"dark");d.classList.add(v);d.style.backgroundColor=dark?"#020617":"#F8FAFC";try{d.style.colorScheme=v;}catch(e){}try{var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute("content",dark?"#020617":"#F8FAFC");}catch(e){}}catch(e){}})();
+  </script>
   <meta name="robots" content="index, follow">
   <meta name="description" content="Papan kedatangan kereta api Surabaya Raya: jadwal tiba, stasiun, dan status kereta.">
   <meta property="og:description" content="Papan kedatangan kereta api Surabaya Raya: jadwal tiba, stasiun, dan status kereta.">
@@ -25,31 +22,6 @@
   <meta property="og:title" content="Papan Kedatangan Kereta Api Surabaya Raya">
   <meta property="og:locale" content="id_ID">
   <title>Papan Kedatangan Kereta Api Surabaya Raya</title>
-<script id="anti-paksa-v4-awal">
-(function(){
-  try{
-    var urlTheme = null;
-    try{ var q = new URLSearchParams(window.location.search); var u = q.get("theme"); if(u==="dark"||u==="light") urlTheme = u; }catch(e){}
-    var keys=["theme","sbyRailBoardTheme","sby-rail-theme","mode"];
-    var theme = urlTheme;
-    if(!theme){
-      for(var i=0;i<keys.length;i++){ try{ var v=localStorage.getItem(keys[i]); if(v==="dark"||v==="light"){ theme=v; break; } }catch(e){} }
-    }
-    if(!theme) theme="light";
-    if(urlTheme){ try{ for(var j=0;j<keys.length;j++){ localStorage.setItem(keys[j], urlTheme); } }catch(e){} }
-    var h=document.documentElement;
-    // Hanya set kalau beda - ini yang bikin V3 muter terus karena selalu set
-    if(h.getAttribute("data-theme")!==theme) h.setAttribute("data-theme", theme);
-    h.classList.remove("dark","light"); h.classList.add(theme);
-    h.style.setProperty("color-scheme", theme+" only", "important");
-    h.style.setProperty("background-color", theme==="dark" ? "#020617" : "#F8FAFC", "important");
-    h.style.setProperty("forced-color-adjust", "none", "important");
-    var m=document.querySelector('meta[name="color-scheme"]'); if(m) m.setAttribute("content", theme+" only");
-    var tc=document.querySelector('meta[name="theme-color"]'); if(tc) tc.setAttribute("content", theme==="dark" ? "#020617" : "#F8FAFC");
-  }catch(e){}
-})();
-</script>
-
   
   
 
@@ -603,7 +575,12 @@ html[data-theme="dark"] #papan-100 .minutes, html.dark #papan-100 .minutes { col
 html[data-theme="dark"] #papan-100 .detail-inline, html.dark #papan-100 .detail-inline { background: #020617 !important; border-top: 1px solid #1E293B; color: #E2E8F0 !important; }
 html[data-theme="dark"] #papan-100 .close-detail, html.dark #papan-100 .close-detail { background: #F1F5F9 !important; color: #0F172A !important; border-color: #334155; }
 html[data-theme="dark"] #papan-100 .detail-time, html.dark #papan-100 .detail-time { background: rgba(255,255,255,.06) !important; }
-/* V4 GitHub: blok prefers dihapus. Yang menang hanya data-theme / ?theme= di URL. */
+/* SBY-PWA: tema MANUAL saja. Default = TERANG. Gelap hanya lewat toggle.
+   Blok lama @media (prefers-color-scheme: dark) yang memaksa gelap saat HP mode malam SUDAH DIHAPUS.
+   Di bawah ini sengaja TIDAK ada perubahan warna apa pun. */
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="dark"]) { color-scheme: light !important; }
+}
 #papan-100 .switch { position: relative; width: 36px !important; height: 22px !important; flex: 0 0 auto; border-radius: 999px; background: #0F172A; border: none; cursor: pointer; padding: 2px; transition: background-color var(--p100-toggle) !important; will-change: background-color; }
 #papan-100 .switch .knob { position: absolute; top: 3px !important; left: 3px !important; width: 16px !important; height: 16px !important; border-radius: 999px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); display: block; transition: transform var(--p100-toggle) !important; transform: translateX(20px); will-change: transform; }
 #papan-100 .switch[aria-checked="true"] .knob { transform: translateX(14px) !important; }
@@ -889,7 +866,7 @@ html #sby-stasiun-floating-mini .mini-dot { color: #fff !important; }
 #floating-actions[data-fab-effect="expand"] #fab-actions-group { transition: opacity .38s ease,transform .38s ease,max-height .38s ease,visibility 0s linear .38s !important; transform-origin: bottom; overflow: hidden; max-height: 320px; }
 #floating-actions[data-fab-effect="expand"] #fab-actions-group:not(.is-collapsed) { opacity: 1 !important; visibility: visible !important; transform: scaleY(1) !important; max-height: 320px !important; transition: opacity .38s ease,transform .38s ease,max-height .38s ease,visibility 0s !important; }
 #floating-actions[data-fab-effect="expand"] #fab-actions-group.is-collapsed { opacity: 0 !important; visibility: hidden !important; transform: scaleY(.8) !important; max-height: 0 ; overflow: hidden; }
-html { background-color: #F8FAFC !important; color-scheme: light dark; background: #F8FAFC !important; scrollbar-gutter: stable; overflow-y: scroll; }
+html { background-color: #F8FAFC !important; color-scheme: light; background: #F8FAFC !important; scrollbar-gutter: stable; overflow-y: scroll; }
 html:fullscreen { background: var(--bg) !important; scrollbar-gutter: stable; }
 html.sby-clock-floating #sby-hero-clock { position: static !important; top: auto !important; left: auto !important; right: auto; bottom: auto; transform: none !important; box-shadow: none; visibility: hidden !important; height: auto !important; min-height: 0 !important; max-height: none ; padding: 6px 12px; margin: 0; width: auto !important; max-width: none; min-width: 0; flex: 0 1 auto; flex-shrink: 1; flex-grow: 0; display: inline-flex !important; align-items: center; gap: 6px; border-radius: 999px; border: none; outline: none; /* jangan izinkan transisi apa pun pada properti layout saat toggle floating. */
   transition: none; }
@@ -962,20 +939,42 @@ html #sby-stasiun-floating, html #sby-filter-floating{border:none !important; bo
 </style>
 
 
-
-<style id="pwa-fullscreen">
-  /* FIX LAYAR PENUH v7+v9: Jangan double safe-area. Root div React sudah pakai paddingTop: var(--safe-area-inset-top).
-     Kalau body ditambah env(safe-area-inset-top) lagi, di PWA jadi 2x dan layout turun.
-     Mode layar penuh asli (:fullscreen) menol-kan keduanya dan cuma pakai main 7mm — PWA disamakan persis. */
-  html, body { min-height: 100dvh; }
-  body { padding-top: 0; padding-bottom: env(safe-area-inset-bottom); }
-  @media (display-mode: fullscreen), (display-mode: standalone) {
-    body { padding-top: 0 !important; margin-top: 0 !important; }
-    div[style*="safe-area-inset-top"] { padding-top: 0 !important; }
-  }
+<style id="sby-pwa-parity">
+/* === SBY PWA: PARITAS LAYAR PENUH === */
+/* Masalah lama: aturan :fullscreen hanya jalan saat tombol Layar Penuh (requestFullscreen).
+   Saat dibuka sebagai aplikasi terinstal (display-mode fullscreen/standalone), :fullscreen TIDAK cocok,
+   sehingga padding safe-area atas tetap kepakai dan layout TURUN beberapa px. */
+/* Perbaikan: samakan display-mode fullscreen/standalone/minimal-ui + class .sby-pwa-fullscreen
+   dengan mode :fullscreen di browser: --safe-area-inset-top = 0, padding-top atas = 0. */
+/* === TEMA: jangan pernah ikut mode malam perangkat. Hanya data-theme dari toggle. === */
+html:not([data-theme="dark"]) { color-scheme: light !important; }
+html[data-theme="dark"] { color-scheme: dark !important; }
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="dark"]) { color-scheme: light !important; }
+}
+@media (display-mode: fullscreen), (display-mode: standalone), (display-mode: minimal-ui) {
+  :root, html { --safe-area-inset-top: 0px !important; }
+  html, html body { padding-top: 0 !important; margin-top: 0 !important; }
+  html body div[style*="safe-area-inset-top"] { padding-top: 0 !important; }
+  html main, html body main { padding-top: 3mm !important; margin-top: 0 !important; }
+  html main > section:first-child { margin-top: 0 !important; }
+  .theme-toggle-floating, #sby-clock-clone { top: 12px !important; }
+}
+@media (orientation: landscape) and (display-mode: fullscreen), (orientation: landscape) and (display-mode: standalone), (orientation: landscape) and (display-mode: minimal-ui) {
+  html main, html body main { padding-top: 7mm !important; }
+}
+html.sby-pwa-fullscreen { --safe-area-inset-top: 0px !important; }
+html.sby-pwa-fullscreen, html.sby-pwa-fullscreen body { padding-top: 0 !important; margin-top: 0 !important; }
+html.sby-pwa-fullscreen body div[style*="safe-area-inset-top"] { padding-top: 0 !important; }
+html.sby-pwa-fullscreen main, html.sby-pwa-fullscreen body main { padding-top: 3mm !important; margin-top: 0 !important; }
+html.sby-pwa-fullscreen main > section:first-child { margin-top: 0 !important; }
+html.sby-pwa-fullscreen .theme-toggle-floating, html.sby-pwa-fullscreen #sby-clock-clone { top: 12px !important; }
+@media (orientation: landscape) {
+  html.sby-pwa-fullscreen main, html.sby-pwa-fullscreen body main { padding-top: 7mm !important; }
+}
 </style>
 </head>
-<body><div id="sby-tema-debug" title="Klik untuk reset tema ke Terang" style="position:fixed;left:8px;bottom:8px;z-index:9999;font-size:10px;line-height:1.4;padding:6px 8px;border-radius:999px;background:rgba(0,0,0,.65);color:#fff;">Tema: memuat...</div>
+<body>
   <noscript>
     <div style="padding:16px;background:#FFFBEB;border:1px solid #FCD34D;color:#78350F;text-align:center;font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif">
       Website ini membutuhkan JavaScript untuk menampilkan jadwal. Aktifkan JavaScript di browser kamu.
@@ -6276,43 +6275,28 @@ html body #papan-100 .detail-inline {
 
 <style id="sby-desktop-portrait-v3-final">
 /* === V3 FINAL: DESKTOP POTRET SELALU MUNCUL TANPA SYARAT - DEFINISI DIPERLUAS === */
-/* Ditaruh PALING AKHIR (sebelum 
-<script id="pwa-sw-register">
+/* Ditaruh PALING AKHIR (sebelum <script id="sby-pwa">
 (function(){
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function(){
-      navigator.serviceWorker.register('./sw.js').then(function(reg){
-        console.log('SW terdaftar:', reg.scope);
-      }).catch(function(err){
-        console.log('SW gagal:', err);
-      });
-    });
-  }
-  // Tombol install manual (Android Chrome): tangkap event beforeinstallprompt
-  var deferredPrompt = null;
-  window.addEventListener('beforeinstallprompt', function(e){
-    e.preventDefault();
-    deferredPrompt = e;
-    // Tampilkan tombol install kalau ada elemen #btn-install, kalau tidak ada buat floating button sederhana
-    var btn = document.getElementById('btn-install-pwa');
-    if(!btn){
-      btn = document.createElement('button');
-      btn.id = 'btn-install-pwa';
-      btn.textContent = '📲 Install Aplikasi';
-      btn.style.cssText = 'position:fixed;left:16px;bottom:16px;z-index:9999;padding:10px 14px;border-radius:999px;background:#FF7A00;color:#fff;font-weight:700;border:none;box-shadow:0 6px 20px rgba(0,0,0,.25);cursor:pointer;';
-      btn.onclick = function(){
-        if(deferredPrompt){
-          deferredPrompt.prompt();
-          deferredPrompt.userChoice.then(function(){ deferredPrompt = null; btn.remove(); });
-        }
-      };
-      document.body.appendChild(btn);
-    }
-  });
-  window.addEventListener('appinstalled', function(){ var b=document.getElementById('btn-install-pwa'); if(b) b.remove(); });
+  /* 1) Deteksi aplikasi terinstal: iOS navigator.standalone + display-mode. */
+  function isPWA(){try{if(window.navigator&&window.navigator.standalone)return true;if(window.matchMedia){if(window.matchMedia('(display-mode: fullscreen)').matches)return true;if(window.matchMedia('(display-mode: standalone)').matches)return true;if(window.matchMedia('(display-mode: minimal-ui)').matches)return true;}}catch(e){}return false;}
+  function syncFsBtn(){try{if(!isPWA())return;var b=document.getElementById('btn-fullscreen');if(!b)return;b.classList.add('is-fullscreen');b.title='Layar Penuh (Aplikasi)';var en=b.querySelectorAll('.icon-enter, .label-enter');var ex=b.querySelectorAll('.icon-exit, .label-exit');for(var i=0;i<en.length;i++){en[i].style.display='none';}for(var j=0;j<ex.length;j++){ex[j].style.display='';}}catch(e){}}
+  function syncPWAClass(){try{document.documentElement.classList.toggle('sby-pwa-fullscreen',isPWA());}catch(e){}syncFsBtn();}
+  /* Di dalam PWA sudah layar penuh: cegah tombol memanggil requestFullscreen lagi (biar tidak kedip / toggle intent). */
+  document.addEventListener('click',function(e){try{if(!isPWA())return;var tg=e.target&&e.target.closest?e.target.closest('#btn-fullscreen'):null;if(!tg)return;e.stopPropagation();e.preventDefault();setTimeout(syncFsBtn,50);}catch(err){}},true);
+  /* 2) theme-color hanya ikut data-theme (hasil toggle). TIDAK ikut mode malam perangkat. */
+  function syncThemeColor(){try{var th=document.documentElement.getAttribute('data-theme')||'light';var dark=th==='dark';document.documentElement.style.colorScheme=dark?'dark':'light';var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',dark?'#020617':'#F8FAFC');}catch(e){}}
+  try{var mo=new MutationObserver(function(ms){for(var i=0;i<ms.length;i++){if(ms[i].attributeName==='data-theme'){syncThemeColor();break;}}});mo.observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});}catch(e){}
+  syncThemeColor();
+  syncPWAClass();
+  try{if(window.matchMedia){['(display-mode: fullscreen)','(display-mode: standalone)','(display-mode: minimal-ui)'].forEach(function(q){try{var mq=window.matchMedia(q);if(mq.addEventListener)mq.addEventListener('change',syncPWAClass);else if(mq.addListener)mq.addListener(syncPWAClass);}catch(e){}});}}catch(e){}
+  window.addEventListener('resize',syncPWAClass,{passive:true});
+  document.addEventListener('DOMContentLoaded',syncPWAClass);
+  setTimeout(syncPWAClass,500);setTimeout(syncPWAClass,1500);
+  /* 3) Service Worker: hanya https / localhost, bukan file://. */
+  try{if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost'||location.hostname==='127.0.0.1')){window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(function(){});});}}catch(e){}
+  window.addEventListener('beforeinstallprompt',function(e){try{window.__sbyDeferredPrompt=e;}catch(err){}});
 })();
 </script>
-
 </body>) supaya menang lawan semua CSS di atas. */
 /* Media: portrait + (ada mouse ATAU lebar >=700px). Ini mencakup: */
 /* - Jendela desktop disempitkan: 700x1200, 800x1300, 900x1400 */
@@ -6338,86 +6322,6 @@ html body #papan-100 .detail-inline {
   }
 }
 </style>
-
-
-<style id="anti-paksa-v4-akhir">
-html[data-theme="light"] { color-scheme: light only !important; forced-color-adjust: none !important; background-color:#F8FAFC !important; }
-html[data-theme="light"] body { color-scheme: light only !important; forced-color-adjust: none !important; background-color:#F8FAFC !important; color:#0F172A !important; }
-html[data-theme="dark"] { color-scheme: dark only !important; forced-color-adjust: none !important; background-color:#020617 !important; }
-html[data-theme="dark"] body { color-scheme: dark only !important; forced-color-adjust: none !important; background-color:#020617 !important; color:#F1F5F9 !important; }
-html[data-theme="light"] *, html[data-theme="dark"] * { forced-color-adjust: none !important; }
-@media (prefers-color-scheme: dark) {
-  html[data-theme="light"] { color-scheme: light only !important; background-color:#F8FAFC !important; }
-  html[data-theme="light"] body, html[data-theme="light"] #root, html[data-theme="light"] main { background-color:#F8FAFC !important; color:#0F172A !important; }
-  html[data-theme="light"] #papan-100 { background:#FFFFFF !important; border-color:#E2E8F0 !important; color:#0F172A !important; }
-  html[data-theme="light"] #papan-100 .train-row { background:#FFFFFF !important; border-color:#E2E8F0 !important; }
-  html[data-theme="light"] #papan-100 .train-title, html[data-theme="light"] #papan-100 .time-block strong, html[data-theme="light"] #papan-100 .station-line { color:#0F172A !important; }
-  html[data-theme="light"] #papan-100 .train-copy > p, html[data-theme="light"] #papan-100 .minutes, html[data-theme="light"] #papan-100 #p100-filter-sub { color:#64748B !important; }
-}
-@media (prefers-color-scheme: light) {
-  html[data-theme="dark"] { color-scheme: dark only !important; background-color:#020617 !important; }
-  html[data-theme="dark"] body { background-color:#020617 !important; color:#F1F5F9 !important; }
-}
-#sby-tema-debug { cursor:pointer; pointer-events:auto !important; }
-</style>
-<script id="anti-paksa-v4-guard">
-(function(){
-  var _syncing = false;
-  function getTheme(){
-    try{ var q=new URLSearchParams(window.location.search); var u=q.get("theme"); if(u==="dark"||u==="light") return u; }catch(e){}
-    try{ var keys=["theme","sbyRailBoardTheme","sby-rail-theme","mode"]; for(var i=0;i<keys.length;i++){ var v=localStorage.getItem(keys[i]); if(v==="dark"||v==="light") return v; } }catch(e){}
-    return "light";
-  }
-  function sync(){
-    if(_syncing) return; // CEGAH MUTER: kalau lagi sync, jangan panggil lagi
-    _syncing = true;
-    try{
-      var h=document.documentElement;
-      var theme=getTheme();
-      // PERBAIKAN V3: hanya setAttribute kalau nilainya BENAR-BENAR beda. V3 selalu set, observer manggil sync lagi, muter terus.
-      if(h.getAttribute("data-theme")!==theme) h.setAttribute("data-theme", theme);
-      if(theme==="dark"){ h.classList.add("dark"); h.classList.remove("light"); }
-      else { h.classList.add("light"); h.classList.remove("dark"); }
-      h.style.setProperty("color-scheme", theme+" only", "important");
-      h.style.setProperty("forced-color-adjust","none","important");
-      var m=document.querySelector('meta[name="color-scheme"]'); if(m && m.getAttribute("content")!==theme+" only") m.setAttribute("content", theme+" only");
-      var tc=document.querySelector('meta[name="theme-color"]'); if(tc) tc.setAttribute("content", theme==="dark" ? "#020617" : "#F8FAFC");
-      var badge=document.getElementById("sby-tema-debug");
-      if(badge){
-        var sys="terang";
-        try{ if(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) sys="gelap"; }catch(e){}
-        var host="lokal";
-        try{ host = window.location.hostname ? window.location.hostname : "lokal"; if(host==="") host="file"; }catch(e){}
-        badge.textContent="Tema: "+(theme==="dark"?"Gelap":"Terang")+" | HP: "+sys+" | "+host+" | Klik untuk Reset ke Terang";
-        badge.setAttribute("data-tema", theme);
-      }
-    }catch(e){} finally { _syncing = false; }
-  }
-  sync();
-  document.addEventListener("DOMContentLoaded", sync);
-  try{
-    document.addEventListener("click", function(e){
-      var b = e.target && e.target.closest ? e.target.closest("#sby-tema-debug") : null;
-      if(!b) return;
-      // Hanya reload kalau memang belum Terang - kalau sudah Terang jangan reload lagi (itu juga bikin loading muter)
-      var cur = getTheme();
-      var urlHasLight = false;
-      try{ urlHasLight = new URLSearchParams(window.location.search).get("theme")==="light"; }catch(err){}
-      if(cur==="light" && urlHasLight) return;
-      try{ ["theme","sbyRailBoardTheme","sby-rail-theme","mode"].forEach(function(k){ localStorage.setItem(k,"light"); }); }catch(err){}
-      var u = new URL(window.location.href);
-      u.searchParams.set("theme","light");
-      if(window.location.href !== u.toString()) window.location.href = u.toString();
-    });
-  }catch(e){}
-  try{
-    new MutationObserver(function(muts){
-      if(_syncing) return;
-      for(var i=0;i<muts.length;i++){ if(muts[i].attributeName==="data-theme"){ sync(); break; } }
-    }).observe(document.documentElement,{attributes:true, attributeFilter:["data-theme"]});
-  }catch(e){}
-})();
-</script>
 
 </body>
 
