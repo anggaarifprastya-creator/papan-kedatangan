@@ -1,0 +1,37 @@
+{
+  "name": "Papan Kedatangan Kereta Api Surabaya Raya",
+  "short_name": "Kereta SBY",
+  "description": "Papan kedatangan kereta api Surabaya Raya: jadwal tiba, stasiun, dan status kereta.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#F8FAFC",
+  "theme_color": "#F8FAFC",
+  "lang": "id",
+  "categories": [
+    "travel",
+    "transportation"
+  ],
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
