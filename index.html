@@ -3632,7 +3632,14 @@ try{
         if(!isTerminus){ var sps=btn.querySelectorAll('span'); for(var si=0;si<sps.length;si++){ if((sps[si].textContent||'').trim()==='Terminus'){ isTerminus=true; break; } } }
         if(!isTerminus && (row.textContent||'').indexOf('— Terminus')!==-1) isTerminus=true;
       }catch(e){}
-      rows.push({ time, station, name, no, route, badge, loc, isSel, isTerminus:isTerminus, id: station+'|'+time+'|'+no, row: row, btn: btn });
+      var depart='';
+      try{
+        if(detailEl){
+          var dtsDep=detailEl.querySelectorAll('dt');
+          for(var diDep=0;diDep<dtsDep.length;diDep++){ if((dtsDep[diDep].textContent||'').trim()==='Berangkat lagi'){ var ddDep=dtsDep[diDep].nextElementSibling; if(ddDep) depart=(ddDep.textContent||'').trim(); } }
+        }
+      }catch(e){}
+      rows.push({ time, station, name, no, route, badge, loc, isSel, isTerminus:isTerminus, depart: depart, id: station+'|'+time+'|'+no, row: row, btn: btn });
     });
     return {rows: rows, count: count};
   }
@@ -3899,9 +3906,19 @@ function buildPapan(){
       var diffText=minsUntil(t.time);
       var badgeCls = t.badge==='Segera Tiba' ? '' : ' past';
       var parts=(t.route||'').split('→'); var from=(parts[0]||'').trim(); var to=(parts[1]||'').trim();
+      var departText='-';
+      try{
+        if(t.isTerminus){ departText='-'; }
+        else if(t.depart){
+          var dm=String(t.depart).match(/\d{2}:\d{2}/);
+          if(dm) departText=dm[0];
+          else if(String(t.depart).indexOf('Terminus')!==-1 || String(t.depart).indexOf('—')!==-1) departText='-';
+          else departText=String(t.depart).trim()||'-';
+        }
+      }catch(e){}
       var detailHtml='';
       if(t.isSel){
-        detailHtml = '<div class="detail-inline"><div class="detail-head"><div><span>DETAIL KERETA</span><h3>'+t.name+' ('+t.no+')</h3></div><button type="button" class="close-detail" data-close="'+t.id+'">Tutup Detail</button></div><div class="detail-time"><div><small>DATANG</small><strong>'+t.time+'</strong></div><div class="detail-code">'+t.station+'</div><div style="text-align:right; min-width:0;"><small>STASIUN</small><strong style="display:block; white-space:normal; text-align:right; line-height:1.25; word-break:break-word;">'+({CME:'Cerme', TES:'Tandes', SGU:'Surabaya Gubeng', SB:'Surabaya Kota', SBI:'Surabaya Pasarturi', WO:'Wonokromo', SPJ:'Sepanjang', WR:'Waru', GDG:'Gedangan', SDA:'Sidoarjo', PR:'Porong', KRN:'Krian'}[t.station]||t.loc)+'</strong></div></div><dl class="detail-grid"><div><dt>Stasiun asal</dt><dd>'+from+'</dd></div><div><dt>Tujuan</dt><dd>'+to+'</dd></div><div style="grid-column:span 2;"><dt>Status</dt><dd>'+t.badge+', '+(t.name.indexOf('Commuter')===0?'Commuter Line':'Jarak Jauh')+(t.isTerminus?', Terminus':'')+'</dd></div></dl></div>';
+        detailHtml = '<div class="detail-inline"><div class="detail-head"><div><span>DETAIL KERETA</span><h3>'+t.name+' ('+t.no+')</h3></div><button type="button" class="close-detail" data-close="'+t.id+'">Tutup Detail</button></div><div class="detail-time"><div><small>DATANG</small><strong>'+t.time+'</strong></div><div class="detail-code">'+t.station+'</div><div style="text-align:right; min-width:0;"><small>BERANGKAT</small><strong style="display:block; white-space:normal; text-align:right; line-height:1.25; word-break:break-word;">'+departText+'</strong></div></div><dl class="detail-grid"><div><dt>Stasiun asal</dt><dd>'+from+'</dd></div><div><dt>Tujuan</dt><dd>'+to+'</dd></div><div style="grid-column:span 2;"><dt>Status</dt><dd>'+t.badge+', '+(t.name.indexOf('Commuter')===0?'Commuter Line':'Jarak Jauh')+(t.isTerminus?', Terminus':'')+'</dd></div></dl></div>';
       }
       return '<article class="train-row '+(t.isSel?'selected':'')+'">'
         + '<button type="button" class="train-main" data-id="'+t.id+'" aria-expanded="'+(t.isSel?'true':'false')+'">'
