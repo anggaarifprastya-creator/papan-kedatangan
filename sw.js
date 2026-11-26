@@ -1,31 +1,29 @@
-/* Papan Kedatangan Surabaya Raya - Service Worker pendamping */
-/* Versi: 26 November 2026. Upload file ini berdampingan dengan file HTML di GitHub Pages. */
-/* Jika file ini tidak ada, HTML tetap jalan karena register() di HTML gagal diam-diam. */
-var CACHE = 'sby-papan-2026-11-26-v1';
-var PRECACHE = ['./', './manifest.json'];
-self.addEventListener('install', function(e) {
-  e.waitUntil(caches.open(CACHE).then(function(c) { return c.addAll(PRECACHE); }).catch(function() {}));
+const CACHE = 'papan-sby-v4';
+const CORE = ['./', './index.html', './manifest.json', './icon-180.png', './icon-192.png', './icon-512.png', './icon-192-maskable.png', './icon-512-maskable.png'];
+self.addEventListener('install', function(e){
+  e.waitUntil(caches.open(CACHE).then(function(c){ return c.addAll(CORE); }).then(function(){ return self.skipWaiting(); }));
 });
-self.addEventListener('activate', function(e) {
-  e.waitUntil(caches.keys().then(function(keys) {
-    return Promise.all(keys.map(function(k) { if (k !== CACHE) return caches.delete(k); }));
-  }).catch(function() {}));
+self.addEventListener('activate', function(e){
+  e.waitUntil(caches.keys().then(function(keys){ return Promise.all(keys.filter(function(k){ return k !== CACHE; }).map(function(k){ return caches.delete(k); })); }).then(function(){ return self.clients.claim(); }));
 });
-self.addEventListener('fetch', function(e) {
-  if (e.request.method !== 'GET') return;
+self.addEventListener('fetch', function(e){
+  if(e.request.method !== 'GET') return;
   var url = new URL(e.request.url);
-  if (url.origin !== self.location.origin) return;
-  e.respondWith(
-    fetch(e.request).then(function(res) {
-      var copy = res.clone();
-      caches.open(CACHE).then(function(c) { c.put(e.request, copy); }).catch(function() {});
-      return res;
-    }).catch(function() {
-      return caches.match(e.request).then(function(hit) {
-        if (hit) return hit;
-        if (e.request.mode === 'navigate') return caches.match('./');
-        return new Response('Offline', { status: 503, headers: { 'Content-Type': 'text/plain' } });
-      });
-    })
-  );
+  if(url.origin !== location.origin) return;
+  if(e.request.mode === 'navigate'){
+    e.respondWith(fetch(e.request).then(function(r){
+      var copy = r.clone();
+      caches.open(CACHE).then(function(c){ c.put('./index.html', copy); });
+      return r;
+    }).catch(function(){ return caches.match('./index.html'); }));
+    return;
+  }
+  e.respondWith(caches.match(e.request).then(function(hit){
+    if(hit) return hit;
+    return fetch(e.request).then(function(r){
+      var copy = r.clone();
+      caches.open(CACHE).then(function(c){ c.put(e.request, copy); });
+      return r;
+    });
+  }));
 });
