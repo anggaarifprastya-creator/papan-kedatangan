@@ -4095,6 +4095,7 @@ function buildPapan(){
       for(var _s=0; _s<rows.length; _s++){ if(rows[_s].isSel && _s>=feed.rendered){ feed.rendered=_s+1; break; } }
       feed.rendered=Math.min(feed.rendered, rows.length);
       listEl.innerHTML = rows.slice(0, feed.rendered).map(p100RowHtml).join('') + p100SentinelHtml(feed.rendered, feed.total);
+      if(p100Reset){ try{ listEl.scrollTop=0; }catch(e){} }
       p100BindClicks();
       p100EnsureObserver();
     }
