@@ -7427,5 +7427,83 @@ try{ if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js
 
 </script>
 
+
+<style id="sby-p100-to-top-float">
+  /* Tombol ke atas mengambang seperti p100-scroll-hint - 27 Nov 2026 */
+  /* Sama: 2.2s ease-in-out, naik 3px. Beda properti: pakai translate, bukan transform, */
+  /* supaya transform untuk tengah/scale/rotate tombol tidak ketabrak. */
+  @keyframes p100-to-top-float {
+    0%, 100% { translate: 0 0; }
+    50% { translate: 0 -3px; }
+  }
+  html:not(#__sby) #p100-to-top.is-visible:not(.is-bouncing),
+  #p100-to-top.is-visible:not(.is-bouncing) {
+    animation: p100-to-top-float 2.2s ease-in-out infinite;
+    will-change: translate;
+  }
+</style>
+
+<style id="sby-no-copy-protect">
+  /* Proteksi salin - 27 Nov 2026: cegah klik kanan dan blok teks untuk disalin */
+  html, body {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-touch-callout: none;
+  }
+  img {
+    -webkit-user-drag: none;
+  }
+  /* Textarea fallback internal tombol Salin Daftar tetap bisa disalin */
+  textarea {
+    user-select: text;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+  }
+  ::selection {
+    background: transparent;
+    color: inherit;
+  }
+</style>
+<script>
+try{
+(function(){
+  if(window.__sbyNoCopyBound) return;
+  window.__sbyNoCopyBound = true;
+  function isInternalCopyTarget(el){
+    try{
+      if(!el) return false;
+      var tag = (el.tagName || '').toLowerCase();
+      return tag === 'textarea' || tag === 'input';
+    }catch(e){ return false; }
+  }
+  document.addEventListener('contextmenu', function(e){ e.preventDefault(); }, {capture:true, passive:false});
+  document.addEventListener('selectstart', function(e){ if(isInternalCopyTarget(e.target)) return; e.preventDefault(); }, {capture:true, passive:false});
+  document.addEventListener('dragstart', function(e){ if(isInternalCopyTarget(e.target)) return; e.preventDefault(); }, {capture:true, passive:false});
+  document.addEventListener('copy', function(e){ if(isInternalCopyTarget(e.target)) return; e.preventDefault(); try{ if(e.clipboardData) e.clipboardData.setData('text/plain', ''); }catch(err){} }, {capture:true, passive:false});
+  document.addEventListener('cut', function(e){ if(isInternalCopyTarget(e.target)) return; e.preventDefault(); }, {capture:true, passive:false});
+  document.addEventListener('keydown', function(e){
+    try{
+      if(isInternalCopyTarget(e.target)) return;
+      if(!(e.ctrlKey || e.metaKey)) return;
+      var k = (e.key || '').toLowerCase();
+      if(k === 'c' || k === 'x' || k === 'a') e.preventDefault();
+    }catch(err){}
+  });
+  function lockImages(){
+    try{
+      document.querySelectorAll('img').forEach(function(img){ img.setAttribute('draggable', 'false'); });
+    }catch(e){}
+  }
+  lockImages();
+  if(window.MutationObserver){
+    var mo = new MutationObserver(function(){ lockImages(); });
+    mo.observe(document.body, {childList:true, subtree:true});
+  }
+})();
+}catch(e){}
+</script>
 </body>
 </html>
