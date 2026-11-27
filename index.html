@@ -2119,6 +2119,71 @@ html:not(#__sby) #papan-100 .p100-sentinel { box-sizing: border-box; width: 100%
 html:not(#__sby) #papan-100 .p100-sentinel .p100-sentinel-line { flex-wrap: wrap; justify-content: center; max-width: 100%; text-align: center; }
 html:not(#__sby) #papan-100 .p100-sentinel .p100-sentinel-text { min-width: 0; overflow-wrap: break-word; }
 
+
+/* Desain 09 - Counter Pill indikator scroll - 27 Nov 2026 */
+#papan-100 #p100-scroll-hint{
+  position:absolute;
+  left:50%;
+  bottom:12px;
+  z-index:20;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  background:#0F172A;
+  color:#fff;
+  border-radius:999px;
+  padding:8px 12px;
+  font-size:12px;
+  font-weight:700;
+  line-height:1;
+  white-space:nowrap;
+  box-shadow:0 4px 14px rgba(15,23,42,.28), 0 1px 3px rgba(15,23,42,.18);
+  pointer-events:none;
+  opacity:0;
+  visibility:hidden;
+  transition:opacity .25s ease, visibility .25s ease;
+  animation:p100-hint-float 2.2s ease-in-out infinite;
+}
+#papan-100.p100-show-scroll-hint #p100-scroll-hint{
+  opacity:1;
+  visibility:visible;
+}
+#papan-100.p100-at-bottom #p100-scroll-hint,
+#papan-100.p100-not-scrollable #p100-scroll-hint{
+  opacity:0;
+  visibility:hidden;
+}
+#papan-100 #p100-scroll-hint .p100-hint-dot{
+  width:6px;
+  height:6px;
+  border-radius:999px;
+  background:#34D399;
+  flex:0 0 auto;
+}
+#papan-100 #p100-scroll-hint .p100-hint-arrow{
+  display:inline-flex;
+  align-items:center;
+  flex:0 0 auto;
+  animation:p100-hint-arrow 1.6s ease-in-out infinite;
+}
+#papan-100 #p100-scroll-hint .p100-hint-arrow svg{
+  display:block;
+}
+html[data-theme="dark"] #papan-100 #p100-scroll-hint,
+html.dark #papan-100 #p100-scroll-hint{
+  background:#F8FAFC;
+  color:#0F172A;
+  box-shadow:0 4px 14px rgba(0,0,0,.45), 0 1px 3px rgba(0,0,0,.35);
+}
+@keyframes p100-hint-float{
+  0%,100%{ transform:translateX(-50%) translateY(0); }
+  50%{ transform:translateX(-50%) translateY(-3px); }
+}
+@keyframes p100-hint-arrow{
+  0%,100%{ transform:translateY(0); opacity:1; }
+  50%{ transform:translateY(2px); opacity:.65; }
+}
+
 </style>
   <script id="sby-store-theme">
 
@@ -7248,6 +7313,114 @@ try{
   obs.observe(document.body, { childList: true, subtree: true });
 })();
 
+}catch(e){}
+
+
+try{
+(function(){
+  function ensureHint(){
+    try{
+      var papan = document.getElementById('papan-100');
+      if(!papan) return null;
+      var hint = document.getElementById('p100-scroll-hint');
+      if(!hint){
+        hint = document.createElement('div');
+        hint.id = 'p100-scroll-hint';
+        hint.setAttribute('aria-hidden', 'true');
+        hint.innerHTML = '<span class="p100-hint-dot"></span><span id="p100-scroll-hint-text">Scroll \u2022 1 kereta lagi</span><span class="p100-hint-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>';
+        papan.appendChild(hint);
+      }
+      return hint;
+    }catch(e){ return null; }
+  }
+  function updateHint(){
+    try{
+      var papan = document.getElementById('papan-100');
+      var list = document.getElementById('p100-list');
+      if(!papan || !list) return;
+      var hint = ensureHint();
+      if(!hint) return;
+      var maxScroll = list.scrollHeight - list.clientHeight;
+      if(maxScroll <= 1){
+        papan.classList.remove('p100-show-scroll-hint');
+        return;
+      }
+      if(list.scrollTop >= maxScroll - 2){
+        papan.classList.remove('p100-show-scroll-hint');
+        return;
+      }
+      var remaining = 0;
+      try{
+        var total = 0;
+        try{
+          var feed = window.__p100Feed;
+          if(feed){
+            if(typeof feed.total === 'number' && feed.total > 0) total = feed.total;
+            else if(feed.rows && feed.rows.length) total = feed.rows.length;
+          }
+        }catch(e){}
+        if(!total){
+          try{
+            var cntEl = document.getElementById('p100-count');
+            var cntTxt = cntEl ? (cntEl.textContent || '') : '';
+            var cntM = cntTxt.match(/(\d+)/);
+            if(cntM) total = parseInt(cntM[1], 10);
+          }catch(e){}
+        }
+        if(!total){
+          try{
+            var sen = document.querySelector('.p100-sentinel-text');
+            var senTxt = sen ? (sen.textContent || '') : '';
+            var senM = senTxt.match(/Semua\s+(\d+)\s+kereta/) || senTxt.match(/dari\s+(\d+)\s+kereta/);
+            if(senM) total = parseInt(senM[1], 10);
+          }catch(e){}
+        }
+        var rows = list.querySelectorAll('.train-row');
+        if(!total) total = rows.length;
+        if(total < rows.length) total = rows.length;
+        var listRect = list.getBoundingClientRect();
+        var belowCount = 0;
+        for(var i = 0; i < rows.length; i++){
+          var rBottom = rows[i].getBoundingClientRect().bottom;
+          if(rBottom > listRect.bottom + 1) belowCount++;
+        }
+        var notRendered = total - rows.length;
+        if(notRendered < 0) notRendered = 0;
+        remaining = belowCount + notRendered;
+        if(remaining <= 0){
+          papan.classList.remove('p100-show-scroll-hint');
+          return;
+        }
+      }catch(e){
+        remaining = Math.max(1, Math.ceil((maxScroll - list.scrollTop) / 92));
+      }
+      var txt = document.getElementById('p100-scroll-hint-text');
+      if(txt) txt.textContent = 'Scroll \u2022 ' + remaining + ' kereta lagi';
+      papan.classList.add('p100-show-scroll-hint');
+    }catch(e){}
+  }
+  var raf = 0;
+  function syncSoon(){
+    if(raf) return;
+    raf = requestAnimationFrame(function(){ raf = 0; updateHint(); });
+  }
+  document.addEventListener('scroll', function(e){
+    var tg = e.target;
+    if(tg && tg.id === 'p100-list') updateHint();
+  }, true);
+  if(window.MutationObserver){
+    var mo = new MutationObserver(syncSoon);
+    var observe = function(){
+      try{ mo.observe(document.body, {childList:true, subtree:true}); }catch(e){}
+    };
+    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ observe(); syncSoon(); });
+    else { observe(); syncSoon(); }
+  }
+  window.addEventListener('resize', syncSoon, {passive:true});
+  setTimeout(updateHint, 300);
+  setTimeout(updateHint, 1000);
+  setTimeout(updateHint, 2000);
+})();
 }catch(e){}
 
 try{ if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js').catch(function(){}); } }catch(e){}
