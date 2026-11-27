@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
@@ -357,8 +358,10 @@ html:fullscreen:not(#__sby) main > section:first-child, :fullscreen:not(#__sby) 
   html:fullscreen:not(#__sby) main, :fullscreen:not(#__sby) main { padding-top: 7mm ; }
 }
 html:fullscreen:not(#__sby) body, :fullscreen:not(#__sby) body { padding-top: 0 ; margin-top: 0 ; }
+html:fullscreen:not(#__sby) { --safe-area-inset-top: 0px; }
 @media (display-mode: fullscreen) {
   html:not(#__sby) main { padding-top: 3mm; margin-top: 0; }
+  html:not(#__sby) { --safe-area-inset-top: 0px; }
 }
 @media (display-mode: fullscreen) and (orientation: landscape) {
   html:not(#__sby) main { padding-top: 7mm; }
@@ -2337,6 +2340,7 @@ html.dark #papan-100 #p100-scroll-hint{
 
 </head>
 <body>
+  <h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0">Papan Kedatangan Kereta Api Surabaya Raya</h1>
   <noscript>
     <div style="padding:16px;background:#FFFBEB;border:1px solid #FCD34D;color:#78350F;text-align:center;font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif">
       Website ini membutuhkan JavaScript untuk menampilkan jadwal. Aktifkan JavaScript di browser kamu.
@@ -2379,7 +2383,7 @@ html.dark #papan-100 #p100-scroll-hint{
       if(s===""||s==="ALL"||s==="SEMUA"||s==="[]") return [];
       if(isCode(s)) return [s];
       if(s.charAt(0)==="["){
-        try{ var parsed=JSON.parse(input); if(Array.isArray(parsed)) return normList(parsed).slice(0,1); }catch(e){}
+        try{ var parsed=JSON.parse(input); if(Array.isArray(parsed)) return normList(parsed).slice(0,1); }catch(e){ try{ console.warn('[SBY StationStore] JSON stasiun tidak valid', e && e.message || e); }catch(_){} }
         return [];
       }
       if(s.indexOf(",")!==-1) return normList(s.split(",")).slice(0,1);
@@ -2409,7 +2413,7 @@ html.dark #papan-100 #p100-scroll-hint{
               var f=normList(a);
               if(f.length) return f.slice(0,1);
             }
-          }catch(e){}
+          }catch(e){ try{ console.warn('[SBY StationStore] JSON tersimpan rusak, pakai default', e && e.message || e); }catch(_){} }
         }
         var keys=LEGACY_KEYS;
         for(var k=0;k<keys.length;k++){
@@ -2750,7 +2754,7 @@ try{
     try{
       var feed = window.__p100Feed;
       if(feed && Array.isArray(feed.rows) && feed.rows.length) return feed.rows.slice();
-    }catch(e){}
+    }catch(e){ try{ console.warn('[SBY Jadwal] baca feed gagal, pakai DOM', e && e.message || e); }catch(_){} }
     var rows = [];
     try{
       document.querySelectorAll('#papan-100 .train-row').forEach(function(el){
@@ -2778,7 +2782,7 @@ try{
           isTerminus: false
         });
       });
-    }catch(e){}
+    }catch(e){ try{ console.warn('[SBY Jadwal] baca daftar dari DOM gagal', e && e.message || e); }catch(_){} }
     return rows;
   }
     function buildText(rows){
@@ -7445,6 +7449,7 @@ try{ if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js
 
 <style id="sby-no-copy-protect">
   /* Proteksi salin - 27 Nov 2026: cegah klik kanan dan blok teks untuk disalin */
+  /* Perbaikan 27 Nov 2026: daftar kereta boleh diseleksi dan disalin, UI tetap terproteksi */
   html, body {
     user-select: none;
     -webkit-user-select: none;
@@ -7462,9 +7467,21 @@ try{ if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js
     -moz-user-select: text;
     -ms-user-select: text;
   }
+  /* Daftar kereta boleh diseleksi - 27 Nov 2026 */
+  #p100-list, #papan-100, #p100-list .train-row, #papan-100 .train-row, #p100-list .train-copy, #papan-100 .train-copy {
+    user-select: text;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    -webkit-touch-callout: default;
+  }
   ::selection {
     background: transparent;
     color: inherit;
+  }
+  #p100-list ::selection, #papan-100 ::selection {
+    background: #FFE0B2;
+    color: #0F172A;
   }
 </style>
 <script>
@@ -7479,18 +7496,27 @@ try{
       return tag === 'textarea' || tag === 'input';
     }catch(e){ return false; }
   }
-  document.addEventListener('contextmenu', function(e){ e.preventDefault(); }, {capture:true, passive:false});
-  document.addEventListener('selectstart', function(e){ if(isInternalCopyTarget(e.target)) return; e.preventDefault(); }, {capture:true, passive:false});
-  document.addEventListener('dragstart', function(e){ if(isInternalCopyTarget(e.target)) return; e.preventDefault(); }, {capture:true, passive:false});
-  document.addEventListener('copy', function(e){ if(isInternalCopyTarget(e.target)) return; e.preventDefault(); try{ if(e.clipboardData) e.clipboardData.setData('text/plain', ''); }catch(err){} }, {capture:true, passive:false});
-  document.addEventListener('cut', function(e){ if(isInternalCopyTarget(e.target)) return; e.preventDefault(); }, {capture:true, passive:false});
+  function isTrainListTarget(el){
+    try{
+      if(!el || !el.closest) return false;
+      return !!el.closest('#p100-list, #papan-100, .train-row, .train-copy');
+    }catch(e){ return false; }
+  }
+  function isAllowCopyTarget(el){
+    return isInternalCopyTarget(el) || isTrainListTarget(el);
+  }
+  document.addEventListener('contextmenu', function(e){ if(isAllowCopyTarget(e.target)) return; e.preventDefault(); }, {capture:true, passive:false});
+  document.addEventListener('selectstart', function(e){ if(isAllowCopyTarget(e.target)) return; e.preventDefault(); }, {capture:true, passive:false});
+  document.addEventListener('dragstart', function(e){ if(isAllowCopyTarget(e.target)) return; e.preventDefault(); }, {capture:true, passive:false});
+  document.addEventListener('copy', function(e){ if(isAllowCopyTarget(e.target)) return; e.preventDefault(); try{ if(e.clipboardData) e.clipboardData.setData('text/plain', ''); }catch(err){ try{ console.warn('[SBY] copy dicegah di UI', err && err.message || err); }catch(_){} } }, {capture:true, passive:false});
+  document.addEventListener('cut', function(e){ if(isAllowCopyTarget(e.target)) return; e.preventDefault(); }, {capture:true, passive:false});
   document.addEventListener('keydown', function(e){
     try{
-      if(isInternalCopyTarget(e.target)) return;
+      if(isAllowCopyTarget(e.target)) return;
       if(!(e.ctrlKey || e.metaKey)) return;
       var k = (e.key || '').toLowerCase();
       if(k === 'c' || k === 'x' || k === 'a') e.preventDefault();
-    }catch(err){}
+    }catch(err){ try{ console.warn('[SBY] keydown salin gagal', err && err.message || err); }catch(_){} }
   });
   function lockImages(){
     try{
@@ -7545,8 +7571,8 @@ try{
     <p></p>
     <div class="sby-tour-dots" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
     <div class="sby-tour-btns">
-      <button class="sby-tour-prev" type="button">Kembali</button>
-      <button class="sby-tour-next" type="button">Lanjut</button>
+      <button class="sby-tour-prev" type="button" aria-label="Kembali ke panduan sebelumnya">Kembali</button>
+      <button class="sby-tour-next" type="button" aria-label="Lanjut ke panduan berikutnya">Lanjut</button>
     </div>
   </div>
 </div>
@@ -7584,7 +7610,7 @@ try{
       var leftStr = left + 'px';
       if(guide.style.left !== leftStr) guide.style.left = leftStr;
       if(guide.style.right !== 'auto') guide.style.right = 'auto';
-    }catch(e){}
+    }catch(e){ try{ console.warn('[SBY Tour] syncGuidePosition gagal', e && e.message || e); }catch(_){} }
   }
   try{
     syncGuidePosition();
@@ -8023,7 +8049,7 @@ try{
       }
       placeOverlay(r);
       return r;
-    }).catch(function(){});
+    }).catch(function(err){ try{ console.warn('[SBY Tour] showStep gagal', err && err.message || err); }catch(_){} });
   }
   function refresh(){
     if(!active || refreshing) return;
@@ -8086,7 +8112,7 @@ try{
   if(startBtn) startBtn.addEventListener('click', startTour);
   window.SBY_START_TOUR = startTour;
 })();
-}catch(e){}
+}catch(e){ try{ console.warn('[SBY Tour] init gagal', e && e.message || e); }catch(_){} }
 </script>
 
 </body>
