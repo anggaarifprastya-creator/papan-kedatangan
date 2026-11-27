@@ -7505,5 +7505,452 @@ try{
 })();
 }catch(e){}
 </script>
+
+<style id="sby-tour-css">
+  /* Tur lengkap semua tombol - 27 Nov 2026: sorot 1 tombol, sisanya blur + gelap. TANPA CACHE untuk pengetesan: tidak simpan ke localStorage, tampil setiap reload. */
+  html:not(#__sby) #sby-tour-root,
+  #sby-tour-root {
+    position: fixed; inset: 0; z-index: 2147483647;
+    pointer-events: none; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  html:not(#__sby) #sby-tour-root .sby-tour-shade,
+  #sby-tour-root .sby-tour-shade {
+    position: absolute; background: rgba(2,6,23,.55);
+    backdrop-filter: blur(4px) saturate(.85); -webkit-backdrop-filter: blur(4px) saturate(.85);
+    pointer-events: auto;
+  }
+  html:not(#__sby) #sby-tour-root .sby-tour-shield,
+  #sby-tour-root .sby-tour-shield {
+    position: absolute; background: transparent; pointer-events: auto; cursor: pointer;
+  }
+  html:not(#__sby) #sby-tour-root .sby-tour-ring,
+  #sby-tour-root .sby-tour-ring {
+    position: absolute; border: 3px solid #fff; border-radius: 999px;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.9), 0 12px 32px rgba(2,6,23,.35);
+    pointer-events: none; animation: sby-tour-pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes sby-tour-pulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(37,99,235,.9), 0 12px 32px rgba(2,6,23,.35); }
+    50% { box-shadow: 0 0 0 5px rgba(37,99,235,.55), 0 12px 32px rgba(2,6,23,.35); }
+  }
+  html:not(#__sby) #sby-tour-root .sby-tour-card,
+  #sby-tour-root .sby-tour-card {
+    position: absolute; width: min(320px, calc(100vw - 24px));
+    background: #fff; color: #0F172A; border-radius: 16px;
+    padding: 14px 16px 12px; pointer-events: auto;
+    box-shadow: 0 24px 48px rgba(2,6,23,.35), 0 4px 12px rgba(2,6,23,.18);
+  }
+  #sby-tour-root .sby-tour-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #2563EB; }
+  #sby-tour-root .sby-tour-title { font-size: 16px; font-weight: 800; line-height: 1.3; margin: 4px 0 4px; }
+  #sby-tour-root .sby-tour-desc { font-size: 13px; line-height: 1.5; color: #475569; margin: 0 0 12px; }
+  #sby-tour-root .sby-tour-dots { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 0 12px; }
+  #sby-tour-root .sby-tour-dot { width: 12px; height: 4px; border-radius: 999px; background: #E2E8F0; flex: none; }
+  #sby-tour-root .sby-tour-dot.is-active { background: #2563EB; }
+  #sby-tour-root .sby-tour-dot.is-done { background: #93C5FD; }
+  #sby-tour-root .sby-tour-actions { display: flex; align-items: center; gap: 8px; }
+  #sby-tour-root .sby-tour-btn { border: 0; cursor: pointer; font-weight: 700; font-size: 13px; padding: 9px 14px; border-radius: 999px; }
+  #sby-tour-root .sby-tour-next { background: #2563EB; color: #fff; margin-left: auto; }
+  #sby-tour-root .sby-tour-back { background: #F1F5F9; color: #0F172A; }
+  #sby-tour-root .sby-tour-skip { background: transparent; color: #64748B; padding: 9px 4px; }
+  #sby-tour-root .sby-tour-close { position: absolute; top: 10px; right: 10px; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #E2E8F0; border-radius: 999px; background: #F1F5F9; color: #475569; cursor: pointer; padding: 0; transition: background .22s ease, color .22s ease, transform .22s ease, box-shadow .22s ease; box-shadow: 0 1px 3px rgba(15,23,42,.08); }
+  #sby-tour-root .sby-tour-close svg { width: 13px; height: 13px; display: block; }
+  #sby-tour-root .sby-tour-close:hover { background: #0F172A; color: #fff; border-color: #0F172A; transform: rotate(90deg) scale(1.06); box-shadow: 0 4px 12px rgba(15,23,42,.18); }
+  #sby-tour-root .sby-tour-close:active { transform: rotate(90deg) scale(.92); }
+  #sby-tour-root .sby-tour-close:focus-visible { outline: 2px solid #2563EB; outline-offset: 2px; }
+</style>
+<script id="sby-tour-js">
+try{
+(function(){
+  if(window.__sbyTourBound) return;
+  window.__sbyTourBound = true;
+  // TANPA CACHE UNTUK PENGETESAN: tour ini TIDAK membaca / menulis localStorage / sessionStorage.
+  // Setiap reload tampil lagi. Kalau sudah selesai pengetesan dan mau tampil sekali saja,
+  // tambahkan lagi penyimpanan dengan key sbyTourV1 di finish().
+  var qs = new URLSearchParams(window.location.search || '');
+  var tourParam = qs.get('tour');
+  var disabled = (tourParam === '0' || tourParam === 'off');
+  if(disabled) return;
+
+  var fabWasCollapsed = null, savedFloating = null, toTopTemp = false;
+  var root = null, shades = [], ring = null, shield = null, card = null;
+  var idx = 0, currentEl = null, raf = 0, onResize = null, onScroll = null, onKey = null;
+
+  function saveFloating(){
+    try{
+      var h = document.documentElement;
+      savedFloating = {
+        collapsed: h.classList.contains('sby-stasiun-floating-collapsed'),
+        open: h.classList.contains('sby-stasiun-floating-open'),
+        waiting: h.classList.contains('sby-stasiun-floating-waiting'),
+        shown: h.classList.contains('sby-stasiun-floating-shown'),
+        modeFilter: h.classList.contains('sby-mode-filter')
+      };
+    }catch(e){}
+  }
+  function restoreFloating(){
+    try{
+      if(!savedFloating) return;
+      var h = document.documentElement;
+      h.classList.toggle('sby-stasiun-floating-collapsed', !!savedFloating.collapsed);
+      h.classList.toggle('sby-stasiun-floating-open', !!savedFloating.open);
+      h.classList.toggle('sby-stasiun-floating-waiting', !!savedFloating.waiting);
+      h.classList.toggle('sby-stasiun-floating-shown', !!savedFloating.shown);
+      h.classList.toggle('sby-mode-filter', !!savedFloating.modeFilter);
+    }catch(e){}
+  }
+  function expandFab(){
+    try{
+      var fa = document.getElementById('floating-actions');
+      var grp = document.getElementById('fab-actions-group');
+      if(fabWasCollapsed === null && fa) fabWasCollapsed = fa.classList.contains('is-collapsed');
+      if(fa) fa.classList.remove('is-collapsed');
+      if(grp) grp.classList.remove('is-collapsed');
+    }catch(e){}
+  }
+  function restoreFab(){
+    try{
+      if(fabWasCollapsed){
+        var fa = document.getElementById('floating-actions');
+        var grp = document.getElementById('fab-actions-group');
+        if(fa) fa.classList.add('is-collapsed');
+        if(grp) grp.classList.add('is-collapsed');
+      }
+    }catch(e){}
+  }
+  function scrollToTop(){ try{ window.scrollTo({top: 0, behavior: 'smooth'}); }catch(e){ try{ window.scrollTo(0, 0); }catch(e2){} } }
+  function scrollToPilih(){
+    try{
+      var el = document.getElementById('pilih-stasiun');
+      if(el) el.scrollIntoView({block: 'start', behavior: 'smooth'});
+    }catch(e){}
+  }
+  function scrollToPapan(){
+    try{
+      var el = document.getElementById('papan-kedatangan') || document.getElementById('papan-100');
+      if(el) el.scrollIntoView({block: 'start', behavior: 'smooth'});
+    }catch(e){}
+  }
+  function scrollElCenter(el){ try{ if(el) el.scrollIntoView({block: 'center', behavior: 'smooth'}); }catch(e){} }
+  function showFloatingStation(){
+    try{
+      var h = document.documentElement;
+      h.classList.remove('sby-mode-filter');
+      h.classList.remove('sby-stasiun-floating-collapsed');
+      h.classList.add('sby-stasiun-floating-open');
+      h.classList.remove('sby-stasiun-floating-waiting');
+      h.classList.add('sby-stasiun-floating-shown');
+      var a = document.getElementById('sby-stasiun-floating'); if(a) a.removeAttribute('hidden');
+      var b = document.getElementById('sby-filter-floating'); if(b) b.removeAttribute('hidden');
+      var m = document.getElementById('sby-stasiun-floating-mini'); if(m) m.removeAttribute('hidden');
+      scrollToPapan();
+      setTimeout(function(){
+        try{
+          var h2 = document.documentElement;
+          h2.classList.remove('sby-mode-filter');
+          h2.classList.remove('sby-stasiun-floating-collapsed');
+          h2.classList.add('sby-stasiun-floating-open');
+          h2.classList.remove('sby-stasiun-floating-waiting');
+          h2.classList.add('sby-stasiun-floating-shown');
+          var tr = document.getElementById('sby-stasiun-track');
+          var act = tr ? tr.querySelector('.sby-stasiun-card.is-active') : null;
+          if(tr && act) tr.scrollLeft = Math.max(0, act.offsetLeft - 12);
+        }catch(e){}
+      }, 380);
+    }catch(e){}
+  }
+  function showFloatingFilter(){
+    try{
+      var h = document.documentElement;
+      h.classList.add('sby-mode-filter');
+      h.classList.remove('sby-stasiun-floating-collapsed');
+      h.classList.add('sby-stasiun-floating-open');
+      h.classList.remove('sby-stasiun-floating-waiting');
+      h.classList.add('sby-stasiun-floating-shown');
+      var a = document.getElementById('sby-stasiun-floating'); if(a) a.removeAttribute('hidden');
+      var b = document.getElementById('sby-filter-floating'); if(b) b.removeAttribute('hidden');
+      var m = document.getElementById('sby-stasiun-floating-mini'); if(m) m.removeAttribute('hidden');
+      scrollToPapan();
+      setTimeout(function(){
+        try{
+          var h2 = document.documentElement;
+          h2.classList.add('sby-mode-filter');
+          h2.classList.remove('sby-stasiun-floating-collapsed');
+          h2.classList.add('sby-stasiun-floating-open');
+          h2.classList.remove('sby-stasiun-floating-waiting');
+          h2.classList.add('sby-stasiun-floating-shown');
+          var tr = document.getElementById('sby-filter-track');
+          var act = tr ? tr.querySelector('.sby-filter-card.is-active') : null;
+          if(tr && act) tr.scrollLeft = Math.max(0, act.offsetLeft - 12);
+        }catch(e){}
+      }, 380);
+    }catch(e){}
+  }
+  function showMini(){
+    try{
+      var h = document.documentElement;
+      h.classList.add('sby-stasiun-floating-collapsed');
+      h.classList.remove('sby-stasiun-floating-open');
+      h.classList.remove('sby-stasiun-floating-waiting');
+      h.classList.add('sby-stasiun-floating-shown');
+      var m = document.getElementById('sby-stasiun-floating-mini'); if(m) m.removeAttribute('hidden');
+      scrollToPapan();
+      setTimeout(function(){
+        try{
+          var h2 = document.documentElement;
+          h2.classList.add('sby-stasiun-floating-collapsed');
+          h2.classList.remove('sby-stasiun-floating-open');
+          h2.classList.remove('sby-stasiun-floating-waiting');
+          h2.classList.add('sby-stasiun-floating-shown');
+        }catch(e){}
+      }, 380);
+    }catch(e){}
+  }
+  function showToTop(){
+    try{
+      var btn = document.getElementById('p100-to-top');
+      if(btn){ btn.classList.add('is-visible'); toTopTemp = true; }
+      scrollToPapan();
+    }catch(e){}
+  }
+  function isVisible(el){
+    if(!el) return false;
+    try{
+      var r = el.getBoundingClientRect();
+      if(r.width < 4 || r.height < 4) return false;
+      var cs = window.getComputedStyle(el);
+      if(cs.display === 'none' || cs.visibility === 'hidden' || cs.opacity === '0') return false;
+      return true;
+    }catch(e){ return false; }
+  }
+  function findStationCard(){
+    try{
+      var list = document.querySelectorAll('button.station-card');
+      var first = null;
+      for(var i = 0; i < list.length; i++){
+        if(!isVisible(list[i])) continue;
+        if(!first) first = list[i];
+        if(list[i].classList.contains('is-active')) return list[i];
+      }
+      return first;
+    }catch(e){ return null; }
+  }
+  function findResetFilter(){
+    try{
+      var btns = document.querySelectorAll('button');
+      for(var i = 0; i < btns.length; i++){
+        var tx = (btns[i].textContent || '').trim();
+        if(tx.indexOf('Reset filter') !== -1 && isVisible(btns[i])) return btns[i];
+      }
+    }catch(e){}
+    return null;
+  }
+  function findFilterPill(label){
+    try{
+      var box = document.querySelector('div[aria-label*="Filter kategori"]');
+      if(box){
+        var btns = box.querySelectorAll('button');
+        for(var i = 0; i < btns.length; i++){
+          if((btns[i].textContent || '').trim() === label) return btns[i];
+        }
+        if(btns.length) return btns[0];
+      }
+      var all = document.querySelectorAll('button');
+      for(var j = 0; j < all.length; j++){
+        if((all[j].textContent || '').trim() === label && isVisible(all[j])) return all[j];
+      }
+    }catch(e){}
+    return null;
+  }
+  function findFloatingStationCard(){
+    try{
+      var tr = document.getElementById('sby-stasiun-track');
+      if(!tr) return null;
+      var act = tr.querySelector('.sby-stasiun-card.is-active');
+      if(act && isVisible(act)) return act;
+      var list = tr.querySelectorAll('.sby-stasiun-card');
+      for(var i = 0; i < list.length; i++){ if(isVisible(list[i])) return list[i]; }
+    }catch(e){}
+    return null;
+  }
+  function findFloatingFilterCard(){
+    try{
+      var tr = document.getElementById('sby-filter-track');
+      if(!tr) return null;
+      var act = tr.querySelector('.sby-filter-card.is-active');
+      if(act && isVisible(act)) return act;
+      var list = tr.querySelectorAll('.sby-filter-card');
+      for(var i = 0; i < list.length; i++){ if(isVisible(list[i])) return list[i]; }
+    }catch(e){}
+    return null;
+  }
+
+  var STEPS = [
+    { title: 'Mode Gelap / Terang', desc: 'Di pojok kanan atas. Ketuk untuk ganti tampilan Gelap atau Terang.', get: function(){ return document.querySelector('.theme-toggle-floating'); }, before: function(){ scrollToTop(); expandFab(); }, wait: 420 },
+    { title: 'Tombol + - Aksi Cepat', desc: 'Ketuk tombol + ini untuk membuka atau menutup tombol-tombol cepat di pojok kanan bawah.', get: function(){ return document.getElementById('btn-fab-toggle'); }, before: function(){ scrollToTop(); }, wait: 300 },
+    { title: 'Layar Penuh', desc: 'Membuka papan dalam mode layar penuh, jadi daftar kereta terlihat lebih lega. Ketuk lagi untuk kembali normal.', get: function(){ return document.getElementById('btn-fullscreen'); }, before: expandFab },
+    { title: 'Pilih Stasiun (Tombol Cepat)', desc: 'Langsung scroll ke bagian Pilih Stasiun tanpa scroll manual ke atas.', get: function(){ return document.getElementById('btn-scroll-pilih'); }, before: expandFab },
+    { title: 'Segarkan', desc: 'Perbarui jam dan status kereta ke data terbaru. Tetap di layar penuh.', get: function(){ return document.getElementById('btn-refresh'); }, before: expandFab },
+    { title: 'Salin Daftar', desc: 'Salin daftar kereta yang sedang tampil ke clipboard, siap dibagikan.', get: function(){ return document.getElementById('btn-copy-daftar'); }, before: expandFab },
+    { title: 'Kartu Stasiun', desc: 'Ketuk kartu stasiun untuk filter papan ke stasiun itu. Ketuk lagi untuk batal. Tekan lama = pilih lagi walau sudah aktif.', get: findStationCard, before: function(){ scrollToPilih(); setTimeout(function(){ var c = findStationCard(); scrollElCenter(c); }, 180); }, wait: 520 },
+    { title: 'Reset Filter', desc: 'Muncul saat ada filter aktif. Ketuk untuk kembali ke Semua dan hapus pencarian serta filter.', get: findResetFilter, before: scrollToPilih, wait: 420 },
+    { title: 'Auto Scroll', desc: 'Kalau ON, layar otomatis scroll ke Papan Kedatangan setiap ganti stasiun. Kalau OFF, posisi layar tetap.', get: function(){ return document.querySelector('.auto-scroll-toggle'); }, before: scrollToPilih, wait: 420 },
+    { title: 'Filter (Pill)', desc: 'Filter kategori dan status, bisa pilih lebih dari satu: Commuter Line, Jarak Jauh, Terminus, Segera Tiba, Sudah Tiba, Terjadwal. Ketuk lagi untuk matikan.', get: function(){ return findFilterPill('Segera Tiba'); }, before: function(){ scrollToPilih(); setTimeout(function(){ var c = findFilterPill('Segera Tiba'); scrollElCenter(c); }, 180); }, wait: 520 },
+    { title: 'Cari Kereta', desc: 'Ketik nomor KA, nama KA, atau relasi untuk menyaring daftar yang tampil.', get: function(){ return document.querySelector('input[placeholder*="Cari nomor"]'); }, before: scrollToPilih, wait: 420 },
+    { title: 'Filter Segera Tiba (Switch Papan)', desc: 'Switch di atas papan. ON = hanya kereta Segera Tiba. OFF = semua kereta tampil.', get: function(){ return document.getElementById('p100-switch'); }, before: scrollToPapan, wait: 420 },
+    { title: 'Filter Gubeng', desc: 'Hanya muncul saat stasiun Surabaya Gubeng dipilih. Pilih Semua, Gubeng Baru, atau Gubeng Lama.', get: function(){ return document.querySelector('#p100-gubeng button[data-g="baru"]'); }, before: scrollToPapan, wait: 420 },
+    { title: 'Baris Kereta - Detail', desc: 'Ketuk salah satu baris kereta untuk melihat detail kereta dan info lainnya. Ketuk lagi untuk tutup.', get: function(){ var r = document.querySelector('#p100-list .train-row .train-main'); return r || document.querySelector('#p100-list .train-row'); }, before: function(){ scrollToPapan(); setTimeout(function(){ var el = document.querySelector('#p100-list .train-row'); scrollElCenter(el); }, 180); }, wait: 520 },
+    { title: 'Tombol Ke Atas', desc: 'Muncul saat daftar kereta di-scroll ke bawah. Ketuk untuk kembali ke atas daftar kereta.', get: function(){ return document.getElementById('p100-to-top'); }, before: showToTop, wait: 420 },
+    { title: 'Muat Lebih Banyak', desc: 'Kalau daftar panjang, ketuk untuk tampilkan kereta berikutnya.', get: function(){ return document.getElementById('p100-load-more-btn'); }, before: function(){ scrollToPapan(); setTimeout(function(){ var el = document.getElementById('p100-load-more-btn'); scrollElCenter(el); }, 180); }, wait: 520 },
+    { title: 'Indikator Scroll - X Kereta Lagi', desc: 'Penanda di bawah papan: masih ada berapa kereta yang belum terlihat utuh. Bukan tombol, hanya penanda biar tidak kelewat.', get: function(){ return document.getElementById('p100-scroll-hint'); }, before: scrollToPapan, wait: 420 },
+    { title: 'Bilah Stasiun Apung', desc: 'Bilah di bawah layar saat papan di-scroll. Geser kiri-kanan untuk lihat semua stasiun tanpa scroll ke atas.', get: function(){ return document.getElementById('sby-stasiun-floating'); }, before: showFloatingStation, wait: 520 },
+    { title: 'Kartu di Bilah Stasiun Apung', desc: 'Sama seperti kartu stasiun di atas: ketuk untuk pindah stasiun, tekan lama untuk pilih lagi.', get: findFloatingStationCard, before: showFloatingStation, wait: 520 },
+    { title: 'Tombol Filter (Bilah Apung)', desc: 'Ubah bilah bawah dari daftar Stasiun ke daftar Filter.', get: function(){ return document.getElementById('sby-mode-badge'); }, before: showFloatingStation, wait: 520 },
+    { title: 'Bilah Filter Apung', desc: 'Bilah filter yang muncul setelah ketuk tombol Filter. Geser untuk pilih filter tanpa scroll ke atas.', get: function(){ return document.getElementById('sby-filter-floating'); }, before: showFloatingFilter, wait: 520 },
+    { title: 'Kartu di Bilah Filter Apung', desc: 'Ketuk untuk aktif / nonaktifkan filter, sama seperti pill filter di bagian Pilih Stasiun.', get: findFloatingFilterCard, before: showFloatingFilter, wait: 520 },
+    { title: 'Tombol Stasiun (Bilah Filter)', desc: 'Kembali ke bilah Stasiun.', get: function(){ return document.getElementById('sby-mode-badge-filter'); }, before: showFloatingFilter, wait: 520 },
+    { title: 'Bilah Mini Stasiun', desc: 'Versi mini saat bilah apung diciutkan. Ketuk untuk buka lagi bilah stasiun lengkap.', get: function(){ return document.getElementById('sby-stasiun-floating-mini'); }, before: showMini, wait: 520 }
+  ];
+
+  function build(){
+    root = document.createElement('div');
+    root.id = 'sby-tour-root';
+    root.setAttribute('role', 'dialog');
+    root.setAttribute('aria-modal', 'true');
+    root.setAttribute('aria-label', 'Panduan lengkap tombol');
+    for(var i = 0; i < 4; i++){
+      var s = document.createElement('div');
+      s.className = 'sby-tour-shade';
+      s.addEventListener('click', function(){ next(); });
+      root.appendChild(s); shades.push(s);
+    }
+    ring = document.createElement('div'); ring.className = 'sby-tour-ring'; root.appendChild(ring);
+    shield = document.createElement('div'); shield.className = 'sby-tour-shield'; shield.setAttribute('aria-hidden', 'true');
+    shield.addEventListener('click', function(){ next(); });
+    root.appendChild(shield);
+    card = document.createElement('div'); card.className = 'sby-tour-card'; root.appendChild(card);
+    document.body.appendChild(root);
+    onResize = function(){ scheduleLayout(); };
+    onScroll = function(){ scheduleLayout(); };
+    onKey = function(e){ if(e.key === 'Escape'){ finish(); } if(e.key === 'Enter'){ next(); } };
+    window.addEventListener('resize', onResize, {passive: true});
+    window.addEventListener('scroll', onScroll, {passive: true, capture: true});
+    document.addEventListener('keydown', onKey);
+  }
+  function scheduleLayout(){
+    if(raf) return;
+    raf = requestAnimationFrame(function(){ raf = 0; layout(); });
+  }
+  function layout(){
+    if(!root || !currentEl) return;
+    try{
+      var r = currentEl.getBoundingClientRect();
+      var pad = 10;
+      var left = Math.max(6, r.left - pad);
+      var top = Math.max(6, r.top - pad);
+      var right = Math.min(window.innerWidth - 6, r.right + pad);
+      var bottom = Math.min(window.innerHeight - 6, r.bottom + pad);
+      var w = right - left, h = bottom - top;
+      shades[0].style.cssText = 'left:0;top:0;width:100%;height:' + top + 'px;';
+      shades[1].style.cssText = 'left:0;top:' + bottom + 'px;width:100%;height:' + Math.max(0, window.innerHeight - bottom) + 'px;';
+      shades[2].style.cssText = 'left:0;top:' + top + 'px;width:' + left + 'px;height:' + h + 'px;';
+      shades[3].style.cssText = 'left:' + right + 'px;top:' + top + 'px;width:' + Math.max(0, window.innerWidth - right) + 'px;height:' + h + 'px;';
+      ring.style.left = left + 'px'; ring.style.top = top + 'px'; ring.style.width = w + 'px'; ring.style.height = h + 'px';
+      try{ var br = window.getComputedStyle(currentEl).borderRadius; ring.style.borderRadius = (br && br !== '0px') ? br : '16px'; }catch(e){ ring.style.borderRadius = '16px'; }
+      shield.style.left = left + 'px'; shield.style.top = top + 'px'; shield.style.width = w + 'px'; shield.style.height = h + 'px';
+      var cw = card.offsetWidth, ch = card.offsetHeight;
+      var cx = Math.max(12, Math.min(window.innerWidth - cw - 12, left + w / 2 - cw / 2));
+      var cy;
+      if(bottom + ch + 14 <= window.innerHeight) cy = bottom + 12;
+      else if(top - ch - 12 >= 6) cy = top - ch - 12;
+      else cy = Math.max(12, window.innerHeight - ch - 16);
+      card.style.left = cx + 'px'; card.style.top = cy + 'px';
+    }catch(e){}
+  }
+  function renderCard(step, isLast){
+    var dots = '';
+    for(var i = 0; i < STEPS.length; i++){
+      var cls = 'sby-tour-dot' + (i === idx ? ' is-active' : (i < idx ? ' is-done' : ''));
+      dots += '<span class="' + cls + '"></span>';
+    }
+    card.innerHTML = '<button type="button" class="sby-tour-close" aria-label="Tutup panduan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'
+      + '<div class="sby-tour-eyebrow">Panduan lengkap - ' + (idx + 1) + ' dari ' + STEPS.length + '</div>'
+      + '<div class="sby-tour-title">' + step.title + '</div>'
+      + '<p class="sby-tour-desc">' + step.desc + '</p>'
+      + '<div class="sby-tour-dots">' + dots + '</div>'
+      + '<div class="sby-tour-actions">'
+      + '<button type="button" class="sby-tour-btn sby-tour-skip">Lewati</button>'
+      + (idx > 0 ? '<button type="button" class="sby-tour-btn sby-tour-back">Kembali</button>' : '')
+      + '<button type="button" class="sby-tour-btn sby-tour-next">' + (isLast ? 'Selesai' : 'Lanjut') + '</button>'
+      + '</div>';
+    card.querySelector('.sby-tour-close').addEventListener('click', function(){ finish(); });
+    card.querySelector('.sby-tour-skip').addEventListener('click', function(){ finish(); });
+    var back = card.querySelector('.sby-tour-back');
+    if(back) back.addEventListener('click', function(){ if(idx > 0){ idx--; showStep(); } });
+    card.querySelector('.sby-tour-next').addEventListener('click', function(){ next(); });
+  }
+  function showStep(){
+    if(idx >= STEPS.length){ finish(); return; }
+    var step = STEPS[idx];
+    if(step.before){ try{ step.before(); }catch(e){} }
+    var wait = step.wait || 90;
+    setTimeout(function(){
+      var el = null;
+      try{ el = step.get(); }catch(e){ el = null; }
+      if(!isVisible(el)){ idx++; showStep(); return; }
+      currentEl = el;
+      renderCard(step, idx === STEPS.length - 1);
+      requestAnimationFrame(function(){ layout(); setTimeout(layout, 120); });
+    }, wait);
+  }
+  function next(){
+    if(idx >= STEPS.length - 1){ finish(); return; }
+    idx++; showStep();
+  }
+  function finish(){
+    cleanup();
+  }
+  function cleanup(){
+    try{ window.removeEventListener('resize', onResize); }catch(e){}
+    try{ window.removeEventListener('scroll', onScroll, true); }catch(e){}
+    try{ document.removeEventListener('keydown', onKey); }catch(e){}
+    if(raf) cancelAnimationFrame(raf);
+    if(root && root.parentNode) root.parentNode.removeChild(root);
+    root = null; window.__sbyTourActive = false;
+    try{
+      if(toTopTemp){
+        var tb = document.getElementById('p100-to-top');
+        if(tb) tb.classList.remove('is-visible');
+        toTopTemp = false;
+      }
+    }catch(e){}
+    restoreFloating();
+    restoreFab();
+  }
+  function start(isManual){
+    if(window.__sbyTourActive) return;
+    window.__sbyTourActive = true;
+    idx = 0; fabWasCollapsed = null;
+    saveFloating();
+    build();
+    showStep();
+  }
+  window.__sbyTampilkanTour = function(){ start(true); };
+  window.__sbyResetTour = window.__sbyTampilkanTour;
+
+  function waitReady(cb){
+    var tries = 0;
+    var t = setInterval(function(){
+      tries++;
+      var ok = document.getElementById('btn-fab-toggle') && document.getElementById('p100-switch');
+      if(ok || tries > 20){ clearInterval(t); setTimeout(cb, 600); }
+    }, 300);
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ waitReady(function(){ start(false); }); });
+  else waitReady(function(){ start(false); });
+})();
+}catch(e){}
+
+</script>
+
 </body>
 </html>
