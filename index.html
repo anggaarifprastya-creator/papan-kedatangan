@@ -370,7 +370,7 @@ div.px-4.py-3\.5 > div.flex.flex-wrap > span:last-child { visibility: hidden; }
 html:not(#__sby) div[data-detail-bottom="1"] > span { visibility: visible ; }
 #floating-actions { position: fixed; right: 16px; bottom: 14px; z-index: 2147483646; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; pointer-events: none; }
 #floating-actions button { pointer-events: auto; appearance: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 9999px; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; font-size: 14px; font-weight: 600; letter-spacing: -0.01em; line-height: 1; border: 1px solid rgba(226,232,240,0.9); box-shadow: 0 6px 18px rgba(15,23,42,0.11), 0 1px 4px rgba(15,23,42,0.08); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); user-select: none; -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-#floating-actions #btn-refresh, #floating-actions #btn-scroll-pilih, #floating-actions #btn-fullscreen { min-width: 48px; min-height: 48px; height: 48px; padding: 0 16px;  } 
+#floating-actions #btn-refresh, #floating-actions #btn-scroll-pilih, #floating-actions #btn-fullscreen, #floating-actions #btn-exit-pwa, #floating-actions #btn-copy-daftar { min-width: 48px; min-height: 48px; height: 48px; padding: 0 16px;  } 
 #floating-actions button:active { transform: none; filter: brightness(0.97); } 
 #floating-actions button:hover { transform: none; filter: none; box-shadow: 0 6px 18px rgba(15,23,42,0.11), 0 1px 4px rgba(15,23,42,0.08); }
 html[data-theme="dark"] #floating-actions button, html.dark #floating-actions button { border-color: rgba(30,41,59,0.9); box-shadow: 0 6px 18px rgba(0,0,0,0.22), 0 1px 4px rgba(0,0,0,0.14); }
@@ -397,7 +397,7 @@ html[data-theme="dark"] #floating-actions #btn-refresh, html[data-theme="dark"] 
   #floating-actions { gap: 8px; right: 12px; bottom: 12px; }
   #floating-actions button { min-width: unset; min-height: unset; height: 36px; padding: 0 14px; font-size: 12px; font-weight: 600; gap: 6px; border-radius: 999px; border: 1px solid rgba(226,232,240,0.9); box-shadow: 0 6px 18px rgba(15,23,42,0.11), 0 1px 4px rgba(15,23,42,0.08); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
   html[data-theme="dark"] #floating-actions button, html.dark #floating-actions button { border-color: rgba(30,41,59,0.9); box-shadow: 0 6px 18px rgba(0,0,0,0.22), 0 1px 4px rgba(0,0,0,0.14); }
-  #floating-actions #btn-refresh, #floating-actions #btn-scroll-pilih, #floating-actions #btn-fullscreen { height: 36px; min-height: 36px; min-width: 148px; width: 148px; padding: 0 14px; justify-content: center; box-sizing: border-box;  } 
+  #floating-actions #btn-refresh, #floating-actions #btn-scroll-pilih, #floating-actions #btn-fullscreen, #floating-actions #btn-exit-pwa, #floating-actions #btn-copy-daftar { height: 36px; min-height: 36px; min-width: 148px; width: 148px; padding: 0 14px; justify-content: center; box-sizing: border-box;  } 
   #floating-actions svg { width: 14px; height: 14px; }
   #floating-actions .btn-label { font-size: 11px; }
   #btn-fab-toggle { width: 36px; height: 36px; min-width: 36px; min-height: 36px; padding: 0; }
@@ -407,7 +407,7 @@ html[data-theme="dark"] #floating-actions #btn-refresh, html[data-theme="dark"] 
 @media (orientation: landscape) and (max-height: 600px) {
   #floating-actions { gap: 6px; right: 10px; bottom: 10px; }
   #floating-actions button { height: 32px; padding: 0 10px; font-size: 11px; gap: 5px; }
-  #floating-actions #btn-refresh, #floating-actions #btn-scroll-pilih, #floating-actions #btn-fullscreen { height: 32px; min-height: 32px; min-width: 132px; width: 132px; padding: 0 10px; justify-content: center; box-sizing: border-box;  } 
+  #floating-actions #btn-refresh, #floating-actions #btn-scroll-pilih, #floating-actions #btn-fullscreen, #floating-actions #btn-exit-pwa, #floating-actions #btn-copy-daftar { height: 32px; min-height: 32px; min-width: 132px; width: 132px; padding: 0 10px; justify-content: center; box-sizing: border-box;  } 
   #floating-actions svg { width: 12px; height: 12px; }
   #btn-fab-toggle { width: 32px; height: 32px; min-width: 32px; min-height: 32px; }
   #fab-actions-group { gap: 6px; }
@@ -437,6 +437,9 @@ html[data-theme="dark"] #sby-refresh-toast, html.dark #sby-refresh-toast { backg
 #floating-actions #btn-scroll-pilih { color: #ffffff; background: #111827; backdrop-filter: none; -webkit-backdrop-filter: none; }
 #floating-actions #btn-fullscreen { color: #ffffff; background: #2563EB; backdrop-filter: none; -webkit-backdrop-filter: none; }
 #floating-actions #btn-fullscreen.is-fullscreen { color: #FFFFFF; background: #DC2626; backdrop-filter: none; -webkit-backdrop-filter: none; }
+#floating-actions #btn-exit-pwa { color: #ffffff; background: #DC2626; backdrop-filter: none; -webkit-backdrop-filter: none; display: none; }
+@media (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) { #floating-actions #btn-exit-pwa { display: inline-flex; } }
+html.is-pwa #floating-actions #btn-exit-pwa { display: inline-flex; }
 #floating-actions #btn-fab-toggle { color: #0F172A; width: 48px; height: 48px; min-width: 48px; min-height: 48px; padding: 0; border-radius: 50%; background: #FFFFFF; backdrop-filter: none; -webkit-backdrop-filter: none; }
 html:not(#__sby) .theme-toggle-floating { position: fixed; top: calc(var(--safe-area-inset-top) + 12px); right: 12px; z-index: 60; display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; border-radius: 999px; background: #FFFFFF ; backdrop-filter: none; -webkit-backdrop-filter: none; border: 1px solid rgba(226,232,240,0.9); box-shadow: 0 10px 24px rgba(0,0,0,.28); color: #0F172A; font-size: 12px; font-weight: 600; letter-spacing: -0.01em; cursor: pointer; transition: opacity 0.28s cubic-bezier(0.4,0,0.2,1), transform 0.28s cubic-bezier(0.4,0,0.2,1), visibility 0.28s ; }
 html[data-theme="dark"] #floating-actions #btn-refresh, html.dark #floating-actions #btn-refresh { color: #E2E8F0; background: #0F172A; }
@@ -666,6 +669,7 @@ html:not(#__sby) #floating-actions[data-fab-effect="stagger"] #fab-actions-group
 #floating-actions[data-fab-effect="stagger"] #fab-actions-group button:nth-last-child(2) { transition-delay: 60ms; }
 #floating-actions[data-fab-effect="stagger"] #fab-actions-group button:nth-last-child(3) { transition-delay: 120ms; }
 #floating-actions[data-fab-effect="stagger"] #fab-actions-group button:nth-last-child(4) { transition-delay: 180ms; }
+#floating-actions[data-fab-effect="stagger"] #fab-actions-group button:nth-last-child(5) { transition-delay: 240ms; }
 html:not(#__sby) #floating-actions[data-fab-effect="zoom"] #fab-actions-group { transition: opacity .28s cubic-bezier(0.2,0.9,0.3,1.2),transform .28s cubic-bezier(0.2,0.9,0.3,1.2),visibility 0s linear .28s ; transform-origin: bottom right; }
 html:not(#__sby) #floating-actions[data-fab-effect="zoom"] #fab-actions-group:not(.is-collapsed) { opacity: 1 ; visibility: visible ; transform: scale(1) ; transition: opacity .28s cubic-bezier(0.2,0.9,0.3,1.2),transform .28s cubic-bezier(0.2,0.9,0.3,1.2),visibility 0s ; }
 html:not(#__sby) #floating-actions[data-fab-effect="zoom"] #fab-actions-group.is-collapsed { opacity: 0 ; visibility: hidden ; transform: scale(0) ; }
@@ -678,6 +682,7 @@ html:not(#__sby) #floating-actions[data-fab-effect="geser-kanan"] #fab-actions-g
 #floating-actions[data-fab-effect="geser-kanan"] #fab-actions-group button:nth-last-child(2) { transition-delay: 40ms; }
 #floating-actions[data-fab-effect="geser-kanan"] #fab-actions-group button:nth-last-child(3) { transition-delay: 80ms; }
 #floating-actions[data-fab-effect="geser-kanan"] #fab-actions-group button:nth-last-child(4) { transition-delay: 120ms; }
+#floating-actions[data-fab-effect="geser-kanan"] #fab-actions-group button:nth-last-child(5) { transition-delay: 160ms; }
 html:not(#__sby) #floating-actions[data-fab-effect="putar"] #fab-actions-group { transition: opacity .38s ease,transform .38s ease,visibility 0s linear .38s ; transform-origin: bottom right; }
 html:not(#__sby) #floating-actions[data-fab-effect="putar"] #fab-actions-group:not(.is-collapsed) { opacity: 1 ; visibility: visible ; transform: rotate(0deg) scale(1) ; transition: opacity .38s ease,transform .38s ease,visibility 0s ; }
 html:not(#__sby) #floating-actions[data-fab-effect="putar"] #fab-actions-group.is-collapsed { opacity: 0 ; visibility: hidden ; transform: rotate(-14deg) scale(.8) ; }
@@ -696,6 +701,7 @@ html:not(#__sby) #floating-actions[data-fab-effect="kipas"] #fab-actions-group:n
 #floating-actions[data-fab-effect="kipas"] #fab-actions-group button:nth-last-child(2) { transition-delay: 50ms; }
 #floating-actions[data-fab-effect="kipas"] #fab-actions-group button:nth-last-child(3) { transition-delay: 100ms; }
 #floating-actions[data-fab-effect="kipas"] #fab-actions-group button:nth-last-child(4) { transition-delay: 150ms; }
+#floating-actions[data-fab-effect="kipas"] #fab-actions-group button:nth-last-child(5) { transition-delay: 200ms; }
 html:not(#__sby) #floating-actions[data-fab-effect="expand"] #fab-actions-group { transition: opacity .38s ease,transform .38s ease,max-height .38s ease,visibility 0s linear .38s ; transform-origin: bottom; overflow: hidden; max-height: 320px; }
 html:not(#__sby) #floating-actions[data-fab-effect="expand"] #fab-actions-group:not(.is-collapsed) { opacity: 1 ; visibility: visible ; transform: scaleY(1) ; max-height: 320px ; transition: opacity .38s ease,transform .38s ease,max-height .38s ease,visibility 0s ; }
 html:not(#__sby) #floating-actions[data-fab-effect="expand"] #fab-actions-group.is-collapsed { opacity: 0 ; visibility: hidden ; transform: scaleY(.8) ; max-height: 0 ; overflow: hidden; }
@@ -2734,6 +2740,12 @@ try{
       <span class="btn-label label-copy">Salin Daftar</span>
       <span class="btn-label label-copied" style="display:none">Tersalin</span>
     </button>
+    <button id="btn-exit-pwa" type="button" title="Keluar" aria-label="Keluar aplikasi">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M18 6L6 18M6 6l12 12"/>
+      </svg>
+      <span class="btn-label">Keluar</span>
+    </button>
   </div>
   <button id="btn-fab-toggle" type="button" title="Luaskan" aria-label="Luaskan aksi cepat">
     <svg class="icon-collapse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -3476,6 +3488,12 @@ try{
       }
     }catch(e){}
   }
+  function exitPWA(){
+    try{ if(isFullscreen()){ var ex=document.exitFullscreen||document.webkitExitFullscreen||document.mozCancelFullScreen||document.msExitFullscreen; if(ex) ex.call(document); } }catch(e){}
+    try{ window.close(); }catch(e){}
+    setTimeout(function(){ try{ if(document.visibilityState!=='hidden' && !document.hidden) showToast('Gunakan tombol kembali / gesture untuk menutup aplikasi'); }catch(e){} }, 400);
+  }
+  function syncPWAExit(){ try{ var pwa=false; try{ if(window.navigator && window.navigator.standalone) pwa=true; }catch(e){} try{ if(window.matchMedia && (window.matchMedia('(display-mode: standalone)').matches || window.matchMedia('(display-mode: fullscreen)').matches || window.matchMedia('(display-mode: minimal-ui)').matches)) pwa=true; }catch(e){} document.documentElement.classList.toggle('is-pwa', !!pwa); }catch(e){} }
 
   var STORAGE_KEY = 'sby_fab_collapsed';
   function setCollapsed(collapsed, save){
@@ -3538,10 +3556,13 @@ try{
     var b=document.getElementById('btn-refresh');
     var c=document.getElementById('btn-fullscreen');
     var d=document.getElementById('btn-fab-toggle');
+    var e=document.getElementById('btn-exit-pwa');
     if(a && !a._b){ a.addEventListener('click', scrollToPilih); a._b=true; }
     if(b && !b._b){ b.addEventListener('click', refreshPage); b._b=true; }
     if(c && !c._b){ c.addEventListener('click', toggleFullscreen); c._b=true; }
     if(d && !d._b){ d.addEventListener('click', toggleCollapse); d._b=true; }
+    if(e && !e._b){ e.addEventListener('click', exitPWA); e._b=true; }
+    syncPWAExit();
     updateFullscreenUI();
     initCollapse();
     initClockFloatWatcher();
