@@ -3491,9 +3491,15 @@ try{
     }catch(e){}
   }
   function exitPWA(){
-    try{ if(isFullscreen()){ var ex=document.exitFullscreen||document.webkitExitFullscreen||document.mozCancelFullScreen||document.msExitFullscreen; if(ex) ex.call(document); } }catch(e){}
-    try{ window.close(); }catch(e){}
-    setTimeout(function(){ try{ if(document.visibilityState!=='hidden' && !document.hidden) showToast('Gunakan tombol kembali / gesture untuk menutup aplikasi'); }catch(e){} }, 400);
+    var wasOpen=false;
+    try{ var grp=document.getElementById('fab-actions-group'); wasOpen=!!(grp && !grp.classList.contains('is-collapsed')); }catch(e){}
+    try{ setCollapsed(true, true); }catch(e){}
+    var doExit=function(){
+      try{ if(isFullscreen()){ var ex=document.exitFullscreen||document.webkitExitFullscreen||document.mozCancelFullScreen||document.msExitFullscreen; if(ex) ex.call(document); } }catch(e){}
+      try{ window.close(); }catch(e){}
+      setTimeout(function(){ try{ if(document.visibilityState!=='hidden' && !document.hidden) showToast('Gunakan tombol kembali / gesture untuk menutup aplikasi'); }catch(e){} }, 400);
+    };
+    if(wasOpen){ setTimeout(doExit, 650); } else { doExit(); }
   }
   function syncPWAExit(){ try{ var pwa=false; try{ if(window.navigator && window.navigator.standalone) pwa=true; }catch(e){} try{ if(window.matchMedia && (window.matchMedia('(display-mode: standalone)').matches || window.matchMedia('(display-mode: fullscreen)').matches || window.matchMedia('(display-mode: minimal-ui)').matches)) pwa=true; }catch(e){} document.documentElement.classList.toggle('is-pwa', !!pwa); }catch(e){} }
 
