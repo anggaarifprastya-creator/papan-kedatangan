@@ -370,7 +370,8 @@ div.px-4.py-3\.5 > div.flex.flex-wrap > span:last-child { visibility: hidden; }
 html:not(#__sby) div[data-detail-bottom="1"] > span { visibility: visible ; }
 #floating-actions { position: fixed; right: 16px; bottom: 14px; z-index: 2147483646; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; pointer-events: none; }
 #floating-actions button { pointer-events: auto; appearance: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 9999px; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; font-size: 14px; font-weight: 600; letter-spacing: -0.01em; line-height: 1; border: 1px solid rgba(226,232,240,0.9); box-shadow: 0 6px 18px rgba(15,23,42,0.11), 0 1px 4px rgba(15,23,42,0.08); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); user-select: none; -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-#floating-actions #btn-refresh, #floating-actions #btn-scroll-pilih, #floating-actions #btn-fullscreen, #floating-actions #btn-exit-pwa, #floating-actions #btn-copy-daftar { min-width: 48px; min-height: 48px; height: 48px; padding: 0 16px;  } 
+#floating-actions #btn-refresh, #floating-actions #btn-scroll-pilih, #floating-actions #btn-fullscreen, #floating-actions #btn-copy-daftar { width: 48px; min-width: 48px; min-height: 48px; height: 48px; padding: 0; border-radius: 50%; }
+#floating-actions #fab-actions-group .btn-label { display: none; } 
 #floating-actions button:active { transform: none; filter: brightness(0.97); } 
 #floating-actions button:hover { transform: none; filter: none; box-shadow: 0 6px 18px rgba(15,23,42,0.11), 0 1px 4px rgba(15,23,42,0.08); }
 html[data-theme="dark"] #floating-actions button, html.dark #floating-actions button { border-color: rgba(30,41,59,0.9); box-shadow: 0 6px 18px rgba(0,0,0,0.22), 0 1px 4px rgba(0,0,0,0.14); }
@@ -384,6 +385,7 @@ html[data-theme="dark"] #floating-actions #btn-refresh, html[data-theme="dark"] 
   #floating-actions button { min-width: 46px; min-height: 46px; padding: 0 12px; height: 46px; }
   #floating-actions .btn-label { display: none; }
   #btn-fab-toggle { width: 46px; height: 46px; min-width: 46px; min-height: 46px; }
+  #floating-actions #btn-refresh, #floating-actions #btn-scroll-pilih, #floating-actions #btn-fullscreen, #floating-actions #btn-copy-daftar { width: 46px; min-width: 46px; min-height: 46px; height: 46px; padding: 0; border-radius: 50%; }
 }
 #btn-refresh.loading svg { animation: spin 0.8s linear infinite; }
 #fab-actions-group { display: flex; flex-direction: column; gap: 12px; align-items: flex-end; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform-origin: bottom right; }
@@ -397,7 +399,8 @@ html[data-theme="dark"] #floating-actions #btn-refresh, html[data-theme="dark"] 
   #floating-actions { gap: 8px; right: 12px; bottom: 12px; }
   #floating-actions button { min-width: unset; min-height: unset; height: 36px; padding: 0 14px; font-size: 12px; font-weight: 600; gap: 6px; border-radius: 999px; border: 1px solid rgba(226,232,240,0.9); box-shadow: 0 6px 18px rgba(15,23,42,0.11), 0 1px 4px rgba(15,23,42,0.08); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
   html[data-theme="dark"] #floating-actions button, html.dark #floating-actions button { border-color: rgba(30,41,59,0.9); box-shadow: 0 6px 18px rgba(0,0,0,0.22), 0 1px 4px rgba(0,0,0,0.14); }
-  #floating-actions #btn-refresh, #floating-actions #btn-scroll-pilih, #floating-actions #btn-fullscreen, #floating-actions #btn-exit-pwa, #floating-actions #btn-copy-daftar { height: 36px; min-height: 36px; min-width: 148px; width: 148px; padding: 0 14px; justify-content: center; box-sizing: border-box;  } 
+  #floating-actions #btn-refresh, #floating-actions #btn-scroll-pilih, #floating-actions #btn-fullscreen, #floating-actions #btn-copy-daftar { height: 36px; min-height: 36px; min-width: 148px; width: 148px; padding: 0 14px; border-radius: 999px; justify-content: center; box-sizing: border-box; }
+  #floating-actions #fab-actions-group .btn-label { display: inline; } 
   #floating-actions svg { width: 14px; height: 14px; }
   #floating-actions .btn-label { font-size: 11px; }
   #btn-fab-toggle { width: 36px; height: 36px; min-width: 36px; min-height: 36px; padding: 0; }
@@ -407,7 +410,7 @@ html[data-theme="dark"] #floating-actions #btn-refresh, html[data-theme="dark"] 
 @media (orientation: landscape) and (max-height: 600px) {
   #floating-actions { gap: 6px; right: 10px; bottom: 10px; }
   #floating-actions button { height: 32px; padding: 0 10px; font-size: 11px; gap: 5px; }
-  #floating-actions #btn-refresh, #floating-actions #btn-scroll-pilih, #floating-actions #btn-fullscreen, #floating-actions #btn-exit-pwa, #floating-actions #btn-copy-daftar { height: 32px; min-height: 32px; min-width: 132px; width: 132px; padding: 0 10px; justify-content: center; box-sizing: border-box;  } 
+  #floating-actions #btn-refresh, #floating-actions #btn-scroll-pilih, #floating-actions #btn-fullscreen, #floating-actions #btn-copy-daftar { height: 32px; min-height: 32px; min-width: 132px; width: 132px; padding: 0 10px; border-radius: 999px; justify-content: center; box-sizing: border-box; } 
   #floating-actions svg { width: 12px; height: 12px; }
   #btn-fab-toggle { width: 32px; height: 32px; min-width: 32px; min-height: 32px; }
   #fab-actions-group { gap: 6px; }
@@ -437,9 +440,19 @@ html[data-theme="dark"] #sby-refresh-toast, html.dark #sby-refresh-toast { backg
 #floating-actions #btn-scroll-pilih { color: #ffffff; background: #111827; backdrop-filter: none; -webkit-backdrop-filter: none; }
 #floating-actions #btn-fullscreen { color: #ffffff; background: #2563EB; backdrop-filter: none; -webkit-backdrop-filter: none; }
 #floating-actions #btn-fullscreen.is-fullscreen { color: #FFFFFF; background: #DC2626; backdrop-filter: none; -webkit-backdrop-filter: none; }
-#floating-actions #btn-exit-pwa { color: #ffffff; background: #DC2626; backdrop-filter: none; -webkit-backdrop-filter: none; display: none; }
-@media (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) { #floating-actions #btn-exit-pwa { display: inline-flex; } }
-html.is-pwa #floating-actions #btn-exit-pwa { display: inline-flex; }
+#btn-exit-pwa { position: fixed; right: 0; top: 50%; z-index: 2147483647; display: none; align-items: center; justify-content: center; gap: 8px; width: 48px; height: 48px; min-width: 48px; padding: 0; border-radius: 50%; border: 1px solid rgba(220,38,38,0.9); background: #DC2626; color: #FFFFFF; box-shadow: 0 6px 18px rgba(15,23,42,0.11), 0 1px 4px rgba(15,23,42,0.08); cursor: grab; touch-action: none; user-select: none; -webkit-tap-highlight-color: transparent; box-sizing: border-box; transition: width .25s ease, border-radius .25s ease, padding .25s ease, transform .25s ease; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; font-size: 14px; font-weight: 600; line-height: 1; }
+#btn-exit-pwa svg { width: 20px; height: 20px; flex-shrink: 0; }
+#btn-exit-pwa .btn-label { display: none; white-space: nowrap; }
+#btn-exit-pwa.is-docked-right { left: auto; right: 0; transform: translate(45%, -50%); }
+#btn-exit-pwa.is-docked-left { right: auto; left: 0; transform: translate(-45%, -50%); }
+#btn-exit-pwa.is-peeked { width: auto; min-width: 108px; padding: 0 16px 0 12px; border-radius: 999px; cursor: pointer; }
+#btn-exit-pwa.is-peeked .btn-label { display: inline; }
+#btn-exit-pwa.is-docked-right.is-peeked { transform: translate(0, -50%); }
+#btn-exit-pwa.is-docked-left.is-peeked { transform: translate(0, -50%); }
+#btn-exit-pwa.is-dragging { transition: none; cursor: grabbing; }
+#btn-exit-pwa:active { filter: brightness(0.97); }
+@media (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) { #btn-exit-pwa { display: inline-flex; } }
+html.is-pwa #btn-exit-pwa { display: inline-flex; }
 #floating-actions #btn-fab-toggle { color: #0F172A; width: 48px; height: 48px; min-width: 48px; min-height: 48px; padding: 0; border-radius: 50%; background: #FFFFFF; backdrop-filter: none; -webkit-backdrop-filter: none; }
 html:not(#__sby) .theme-toggle-floating { position: fixed; top: calc(var(--safe-area-inset-top) + 12px); right: 12px; z-index: 60; display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; border-radius: 999px; background: #FFFFFF ; backdrop-filter: none; -webkit-backdrop-filter: none; border: 1px solid rgba(226,232,240,0.9); box-shadow: 0 10px 24px rgba(0,0,0,.28); color: #0F172A; font-size: 12px; font-weight: 600; letter-spacing: -0.01em; cursor: pointer; transition: opacity 0.28s cubic-bezier(0.4,0,0.2,1), transform 0.28s cubic-bezier(0.4,0,0.2,1), visibility 0.28s ; }
 html[data-theme="dark"] #floating-actions #btn-refresh, html.dark #floating-actions #btn-refresh { color: #E2E8F0; background: #0F172A; }
@@ -2740,14 +2753,6 @@ try{
       <span class="btn-label label-copy">Salin Daftar</span>
       <span class="btn-label label-copied" style="display:none">Tersalin</span>
     </button>
-    <button id="btn-exit-pwa" type="button" title="Keluar" aria-label="Keluar aplikasi">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M14 4h5v16h-5"/>
-        <path d="M3 12h9"/>
-        <path d="M9 8l4 4-4 4"/>
-      </svg>
-      <span class="btn-label">Keluar</span>
-    </button>
   </div>
   <button id="btn-fab-toggle" type="button" title="Luaskan" aria-label="Luaskan aksi cepat">
     <svg class="icon-collapse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -2758,7 +2763,121 @@ try{
     </svg>
   </button>
 </div>
+<button id="btn-exit-pwa" class="is-docked-right" type="button" title="Keluar" aria-label="Keluar aplikasi">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M14 4h5v16h-5"/>
+    <path d="M3 12h9"/>
+    <path d="M9 8l4 4-4 4"/>
+  </svg>
+  <span class="btn-label">Keluar</span>
+</button>
 
+
+
+
+<style id="sby-hdr-masuk-css">
+.sby-hdr-masuk-top { position: sticky; top: 0; z-index: 2; }
+.sby-hdr-masuk-bottom { position: relative; z-index: 1; will-change: filter, opacity; }
+</style>
+<script id="sby-hdr-masuk-js">
+try{
+(function(){
+  var hdr=null;
+  var inner=null;
+  var upper=null;
+  var lowers=[];
+  var raf=0;
+  var lastProg=-1;
+  function find(){
+    try{
+      var sec=document.querySelector('#root main section');
+      if(!sec) return false;
+      var inn=sec.querySelector(':scope > div.relative');
+      if(!inn) return false;
+      var up=inn.querySelector(':scope > div.flex');
+      if(!up) return false;
+      var kids=Array.prototype.slice.call(inn.children);
+      var idx=kids.indexOf(up);
+      var lows=kids.slice(idx+1);
+      if(!lows.length) return false;
+      hdr=sec;
+      inner=inn;
+      upper=up;
+      lowers=lows;
+      try{ hdr.style.overflow='clip'; }catch(e){}
+      upper.classList.add('sby-hdr-masuk-top');
+      upper.style.position='sticky';
+      upper.style.top='0px';
+      upper.style.zIndex='2';
+      lowers.forEach(function(el){ el.classList.add('sby-hdr-masuk-bottom'); el.style.zIndex='1'; });
+      return true;
+    }catch(e){ return false; }
+  }
+  function isDark(){
+    try{
+      if(document.documentElement.classList.contains('dark')) return true;
+      if(document.documentElement.getAttribute('data-theme')==='dark') return true;
+    }catch(e){}
+    return false;
+  }
+  function apply(){
+    raf=0;
+    if(!hdr){ if(!find()) return; }
+    var y=window.scrollY||document.documentElement.scrollTop||0;
+    var enter=140;
+    var prog=Math.max(0,Math.min(1,y/enter));
+    if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches){ prog=y>0?1:0; }
+    if(Math.abs(prog-lastProg)<0.001) return;
+    lastProg=prog;
+    lowers.forEach(function(el){
+      el.style.filter='blur('+(prog*4)+'px)';
+      el.style.opacity=String(1-prog*0.35);
+    });
+    if(prog>0){
+      if(isDark()){
+        upper.style.background='rgba(15,23,42,'+(0.45+prog*0.35)+')';
+      }else{
+        upper.style.background='rgba(255,255,255,'+(0.35+prog*0.4)+')';
+      }
+      upper.style.backdropFilter='blur('+(prog*10)+'px)';
+      upper.style.webkitBackdropFilter='blur('+(prog*10)+'px)';
+      upper.style.borderRadius='16px';
+      upper.style.boxShadow='0 1px 0 rgba(15,23,42,0.06)';
+    }else{
+      upper.style.background='';
+      upper.style.backdropFilter='';
+      upper.style.webkitBackdropFilter='';
+      upper.style.borderRadius='';
+      upper.style.boxShadow='';
+      lowers.forEach(function(el){ el.style.filter=''; el.style.opacity=''; });
+    }
+  }
+  function onScroll(){
+    if(raf) return;
+    raf=requestAnimationFrame(apply);
+  }
+  function init(){
+    if(!find()){
+      setTimeout(init,500);
+      return;
+    }
+    window.addEventListener('scroll',onScroll,{passive:true});
+    window.addEventListener('resize',onScroll,{passive:true});
+    try{
+      var obs=new MutationObserver(function(){
+        if(hdr&&!document.contains(hdr)){ hdr=null; inner=null; upper=null; lowers=[]; lastProg=-1; find(); }
+        onScroll();
+      });
+      obs.observe(document.body,{childList:true,subtree:true});
+    }catch(e){}
+    onScroll();
+  }
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',init); } else { init(); }
+  setTimeout(init,800);
+  setTimeout(init,2000);
+})();
+}catch(e){}
+</script>
 <script id="sby-mid-patches">
 
 try{
@@ -3502,6 +3621,120 @@ try{
     if(wasOpen){ setTimeout(doExit, 650); } else { doExit(); }
   }
   function syncPWAExit(){ try{ var pwa=false; try{ if(window.navigator && window.navigator.standalone) pwa=true; }catch(e){} try{ if(window.matchMedia && (window.matchMedia('(display-mode: standalone)').matches || window.matchMedia('(display-mode: fullscreen)').matches || window.matchMedia('(display-mode: minimal-ui)').matches)) pwa=true; }catch(e){} document.documentElement.classList.toggle('is-pwa', !!pwa); }catch(e){} }
+  function initExitDock(btn){
+    var EDGE_KEY='sby_exit_edge';
+    var TOP_KEY='sby_exit_top';
+    var peeked=false;
+    var dragging=false;
+    var moved=false;
+    var suppressClick=false;
+    var startX=0;
+    var startY=0;
+    var startCenterY=0;
+    var pointerId=null;
+    function applyDock(edge, ratio, save){
+      btn.classList.remove('is-docked-left','is-docked-right');
+      btn.classList.add(edge==='left'?'is-docked-left':'is-docked-right');
+      var h=window.innerHeight||document.documentElement.clientHeight||600;
+      var y=ratio*h;
+      y=Math.max(64,Math.min(h-64,y));
+      btn.style.top=y+'px';
+      if(save){ try{ localStorage.setItem(EDGE_KEY,edge); localStorage.setItem(TOP_KEY,String(y/h)); }catch(e){} }
+    }
+    function restoreDock(){
+      try{
+        var edge=localStorage.getItem(EDGE_KEY);
+        var topStr=localStorage.getItem(TOP_KEY);
+        if(edge==='left'||edge==='right'){
+          var r=topStr?parseFloat(topStr):0.5;
+          if(isNaN(r)) r=0.5;
+          applyDock(edge,r,false);
+          return;
+        }
+      }catch(e){}
+      btn.classList.add('is-docked-right');
+    }
+    function setPeek(on){
+      peeked=!!on;
+      btn.classList.toggle('is-peeked',peeked);
+      btn.title=peeked?'Klik lagi untuk keluar':'Keluar';
+      btn.setAttribute('aria-label',peeked?'Klik lagi untuk keluar aplikasi':'Keluar aplikasi');
+    }
+    btn.addEventListener('pointerdown',function(ev){
+      dragging=true;
+      moved=false;
+      suppressClick=false;
+      startX=ev.clientX;
+      startY=ev.clientY;
+      var r=btn.getBoundingClientRect();
+      startCenterY=r.top+r.height/2;
+      pointerId=ev.pointerId;
+      try{ btn.setPointerCapture(pointerId); }catch(e){}
+    });
+    btn.addEventListener('pointermove',function(ev){
+      if(!dragging) return;
+      var dx=ev.clientX-startX;
+      var dy=ev.clientY-startY;
+      if(Math.abs(dx)>6||Math.abs(dy)>6){
+        if(!moved){
+          moved=true;
+          setPeek(false);
+          btn.classList.add('is-dragging');
+        }
+        var h=window.innerHeight||document.documentElement.clientHeight||600;
+        var w=window.innerWidth||document.documentElement.clientWidth||360;
+        var newTop=startCenterY+dy;
+        newTop=Math.max(48,Math.min(h-48,newTop));
+        btn.style.left=Math.max(0,Math.min(w-48,ev.clientX-24))+'px';
+        btn.style.right='auto';
+        btn.style.top=newTop+'px';
+        btn.style.transform='none';
+      }
+    });
+    function endDrag(ev){
+      if(!dragging) return;
+      dragging=false;
+      btn.classList.remove('is-dragging');
+      if(moved){
+        var w=window.innerWidth||document.documentElement.clientWidth||360;
+        var h=window.innerHeight||document.documentElement.clientHeight||600;
+        var edge=ev.clientX<w/2?'left':'right';
+        btn.style.left='';
+        btn.style.right='';
+        btn.style.transform='';
+        var y=parseFloat(btn.style.top||'0')||h/2;
+        applyDock(edge,y/h,true);
+        suppressClick=true;
+        setTimeout(function(){ suppressClick=false; },350);
+      }
+      try{ if(pointerId!==null) btn.releasePointerCapture(pointerId); }catch(e){}
+      moved=false;
+    }
+    btn.addEventListener('pointerup',endDrag);
+    btn.addEventListener('pointercancel',endDrag);
+    btn.addEventListener('click',function(ev){
+      if(suppressClick){ suppressClick=false; ev.preventDefault(); ev.stopPropagation(); return; }
+      if(!peeked){
+        setPeek(true);
+        try{ showToast('Klik lagi untuk keluar'); }catch(e){}
+        ev.preventDefault();
+      }else{
+        setPeek(false);
+        try{ exitPWA(); }catch(e){}
+      }
+    });
+    document.addEventListener('click',function(ev){
+      if(peeked&&ev.target!==btn&&!btn.contains(ev.target)){ setPeek(false); }
+    },true);
+    window.addEventListener('resize',function(){
+      try{
+        var h=window.innerHeight||document.documentElement.clientHeight||600;
+        var y=parseFloat(btn.style.top||'0');
+        if(y){ y=Math.max(64,Math.min(h-64,y)); btn.style.top=y+'px'; }
+      }catch(e){}
+    });
+    restoreDock();
+  }
 
   var STORAGE_KEY = 'sby_fab_collapsed';
   function setCollapsed(collapsed, save){
@@ -3569,7 +3802,7 @@ try{
     if(b && !b._b){ b.addEventListener('click', refreshPage); b._b=true; }
     if(c && !c._b){ c.addEventListener('click', toggleFullscreen); c._b=true; }
     if(d && !d._b){ d.addEventListener('click', toggleCollapse); d._b=true; }
-    if(e && !e._b){ e.addEventListener('click', exitPWA); e._b=true; }
+    if(e && !e._b){ initExitDock(e); e._b=true; }
     syncPWAExit();
     updateFullscreenUI();
     initCollapse();
