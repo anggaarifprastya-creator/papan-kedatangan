@@ -440,7 +440,7 @@ html[data-theme="dark"] #sby-refresh-toast, html.dark #sby-refresh-toast { backg
 #floating-actions #btn-scroll-pilih { color: #ffffff; background: #111827; backdrop-filter: none; -webkit-backdrop-filter: none; }
 #floating-actions #btn-fullscreen { color: #ffffff; background: #2563EB; backdrop-filter: none; -webkit-backdrop-filter: none; }
 #floating-actions #btn-fullscreen.is-fullscreen { color: #FFFFFF; background: #DC2626; backdrop-filter: none; -webkit-backdrop-filter: none; }
-#btn-exit-pwa { position: fixed; right: 0; top: 50%; z-index: 2147483647; display: none; align-items: center; justify-content: center; gap: 8px; width: 48px; height: 48px; min-width: 48px; padding: 0; border-radius: 50%; border: 1px solid rgba(220,38,38,0.9); background: #DC2626; color: #FFFFFF; box-shadow: 0 6px 18px rgba(15,23,42,0.11), 0 1px 4px rgba(15,23,42,0.08); cursor: grab; touch-action: none; user-select: none; -webkit-tap-highlight-color: transparent; box-sizing: border-box; transition: width .25s ease, border-radius .25s ease, padding .25s ease, transform .25s ease; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; font-size: 14px; font-weight: 600; line-height: 1; }
+#btn-exit-pwa { position: fixed; right: 0; top: 50%; z-index: 2147483647; display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 48px; height: 48px; min-width: 48px; padding: 0; border-radius: 50%; border: 1px solid rgba(220,38,38,0.9); background: #DC2626; color: #FFFFFF; box-shadow: 0 6px 18px rgba(15,23,42,0.11), 0 1px 4px rgba(15,23,42,0.08); cursor: grab; touch-action: none; user-select: none; -webkit-tap-highlight-color: transparent; box-sizing: border-box; transition: width .25s ease, border-radius .25s ease, padding .25s ease, transform .25s ease; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; font-size: 14px; font-weight: 600; line-height: 1; }
 #btn-exit-pwa svg { width: 20px; height: 20px; flex-shrink: 0; }
 #btn-exit-pwa .btn-label { display: none; white-space: nowrap; }
 #btn-exit-pwa.is-docked-right { left: auto; right: 0; transform: translate(45%, -50%); }
@@ -2772,112 +2772,6 @@ try{
   <span class="btn-label">Keluar</span>
 </button>
 
-
-
-
-<style id="sby-hdr-masuk-css">
-.sby-hdr-masuk-top { position: sticky; top: 0; z-index: 2; }
-.sby-hdr-masuk-bottom { position: relative; z-index: 1; will-change: filter, opacity; }
-</style>
-<script id="sby-hdr-masuk-js">
-try{
-(function(){
-  var hdr=null;
-  var inner=null;
-  var upper=null;
-  var lowers=[];
-  var raf=0;
-  var lastProg=-1;
-  function find(){
-    try{
-      var sec=document.querySelector('#root main section');
-      if(!sec) return false;
-      var inn=sec.querySelector(':scope > div.relative');
-      if(!inn) return false;
-      var up=inn.querySelector(':scope > div.flex');
-      if(!up) return false;
-      var kids=Array.prototype.slice.call(inn.children);
-      var idx=kids.indexOf(up);
-      var lows=kids.slice(idx+1);
-      if(!lows.length) return false;
-      hdr=sec;
-      inner=inn;
-      upper=up;
-      lowers=lows;
-      try{ hdr.style.overflow='clip'; }catch(e){}
-      upper.classList.add('sby-hdr-masuk-top');
-      upper.style.position='sticky';
-      upper.style.top='0px';
-      upper.style.zIndex='2';
-      lowers.forEach(function(el){ el.classList.add('sby-hdr-masuk-bottom'); el.style.zIndex='1'; });
-      return true;
-    }catch(e){ return false; }
-  }
-  function isDark(){
-    try{
-      if(document.documentElement.classList.contains('dark')) return true;
-      if(document.documentElement.getAttribute('data-theme')==='dark') return true;
-    }catch(e){}
-    return false;
-  }
-  function apply(){
-    raf=0;
-    if(!hdr){ if(!find()) return; }
-    var y=window.scrollY||document.documentElement.scrollTop||0;
-    var enter=140;
-    var prog=Math.max(0,Math.min(1,y/enter));
-    if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches){ prog=y>0?1:0; }
-    if(Math.abs(prog-lastProg)<0.001) return;
-    lastProg=prog;
-    lowers.forEach(function(el){
-      el.style.filter='blur('+(prog*4)+'px)';
-      el.style.opacity=String(1-prog*0.35);
-    });
-    if(prog>0){
-      if(isDark()){
-        upper.style.background='rgba(15,23,42,'+(0.45+prog*0.35)+')';
-      }else{
-        upper.style.background='rgba(255,255,255,'+(0.35+prog*0.4)+')';
-      }
-      upper.style.backdropFilter='blur('+(prog*10)+'px)';
-      upper.style.webkitBackdropFilter='blur('+(prog*10)+'px)';
-      upper.style.borderRadius='16px';
-      upper.style.boxShadow='0 1px 0 rgba(15,23,42,0.06)';
-    }else{
-      upper.style.background='';
-      upper.style.backdropFilter='';
-      upper.style.webkitBackdropFilter='';
-      upper.style.borderRadius='';
-      upper.style.boxShadow='';
-      lowers.forEach(function(el){ el.style.filter=''; el.style.opacity=''; });
-    }
-  }
-  function onScroll(){
-    if(raf) return;
-    raf=requestAnimationFrame(apply);
-  }
-  function init(){
-    if(!find()){
-      setTimeout(init,500);
-      return;
-    }
-    window.addEventListener('scroll',onScroll,{passive:true});
-    window.addEventListener('resize',onScroll,{passive:true});
-    try{
-      var obs=new MutationObserver(function(){
-        if(hdr&&!document.contains(hdr)){ hdr=null; inner=null; upper=null; lowers=[]; lastProg=-1; find(); }
-        onScroll();
-      });
-      obs.observe(document.body,{childList:true,subtree:true});
-    }catch(e){}
-    onScroll();
-  }
-  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',init); } else { init(); }
-  setTimeout(init,800);
-  setTimeout(init,2000);
-})();
-}catch(e){}
-</script>
 <script id="sby-mid-patches">
 
 try{
