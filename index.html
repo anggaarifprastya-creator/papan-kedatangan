@@ -8012,11 +8012,9 @@ try{
     return active || cards[0];
   }
   function getFabTarget(){
-    var group = document.getElementById('fab-actions-group');
     var toggle = document.getElementById('btn-fab-toggle');
-    var wrap = document.getElementById('floating-actions');
-    if(group && group.classList.contains('is-collapsed')) return toggle || wrap;
-    return wrap || toggle;
+    if(toggle) return toggle;
+    return document.getElementById('floating-actions');
   }
   function getAutoScrollRow(){
     return qs('#pilih-stasiun .auto-scroll-row') || qs('.auto-scroll-row');
@@ -8236,24 +8234,36 @@ try{
       return h;
     }catch(e){ return null; }
   }
+  function applyScrollHintForce(){
+    try{
+      var hint = ensureScrollHint();
+      if(!hint) return;
+      hint.style.opacity = '1';
+      hint.style.visibility = 'visible';
+      var txt = document.getElementById('p100-scroll-hint-text');
+      if(txt){
+        var v = (txt.textContent || '').trim();
+        if(!v || /0\s+kereta lagi/.test(v)) txt.textContent = 'Scroll \u2022 1 kereta lagi';
+      }
+    }catch(e){}
+  }
   function clearForcedScrollHint(){
     if(!forcedScrollHint) return;
     forcedScrollHint = false;
     try{
+      var hint = getScrollHint();
+      if(hint){
+        hint.style.removeProperty('opacity');
+        hint.style.removeProperty('visibility');
+      }
       var papan = document.getElementById('papan-100');
       if(papan) papan.classList.remove('p100-show-scroll-hint');
     }catch(e){}
   }
   function forceShowScrollHint(){
     if(forcedScrollHint) return;
-    try{
-      var papan = document.getElementById('papan-100');
-      if(!papan) return;
-      ensureScrollHint();
-      if(papan.classList.contains('p100-show-scroll-hint')) return;
-      papan.classList.add('p100-show-scroll-hint');
-      forcedScrollHint = true;
-    }catch(e){}
+    applyScrollHintForce();
+    forcedScrollHint = true;
   }
   function getModeBadge(){
     var a = document.getElementById('sby-mode-badge');
@@ -8507,7 +8517,7 @@ try{
         });
       },
       getRect:function(){
-        forceShowScrollHint();
+        applyScrollHintForce();
         return rectOf(getScrollHint());
       }
     },
