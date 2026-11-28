@@ -7701,7 +7701,7 @@ try{
 })();
 }catch(e){}
 </script>
-<!-- Tur panduan 5 langkah - 27 Nov 2026 Panduan muncul/hilang identik tema, posisi layout-only, tema tidak dipindah, selesai tur kembali ke tampilan semula - 27 Nov 2026 -->
+<!-- Tur panduan 14 langkah - 27 Nov 2026 Panduan muncul/hilang identik tema, posisi layout-only, tema tidak dipindah, selesai tur kembali ke tampilan semula - 27 Nov 2026 -->
 <style id="sby-tour-css">
   #sby-tour-start{position:fixed;top:calc(var(--safe-area-inset-top) + 12px);right:108px;z-index:60;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;padding:0;border-radius:999px;background:#FFFFFF;border:1px solid rgba(226,232,240,.95);box-shadow:0 10px 24px rgba(15,23,42,.16);color:#0F172A;cursor:pointer;transition:opacity 0.28s cubic-bezier(0.4,0,0.2,1),transform 0.28s cubic-bezier(0.4,0,0.2,1),visibility 0.28s}
   #sby-tour-start svg{width:20px;height:20px}
@@ -7736,10 +7736,10 @@ try{
   <div class="sby-tour-blocker"></div>
   <div class="sby-tour-frame"></div>
   <div class="sby-tour-card" role="dialog" aria-modal="true" aria-label="Panduan">
-    <div class="sby-tour-top"><span class="sby-tour-step">Langkah 1 dari 5</span><button class="sby-tour-close" type="button" aria-label="Tutup panduan">✕</button></div>
+    <div class="sby-tour-top"><span class="sby-tour-step">Langkah 1 dari 14</span><button class="sby-tour-close" type="button" aria-label="Tutup panduan">✕</button></div>
     <h3></h3>
     <p></p>
-    <div class="sby-tour-dots" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="sby-tour-dots" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
     <div class="sby-tour-btns">
       <button class="sby-tour-prev" type="button" aria-label="Kembali ke panduan sebelumnya">Kembali</button>
       <button class="sby-tour-next" type="button" aria-label="Lanjut ke panduan berikutnya">Lanjut</button>
@@ -7795,6 +7795,14 @@ try{
   var refreshing = false;
   var forcedBilah = null;
   var forcedHidden = [];
+  var forcedGubeng = null;
+  var forcedExitPeek = false;
+  var forcedKeAtas = false;
+  var forcedScrollHint = false;
+  var tempSGUPrev = null;
+  var forcedTheme = false;
+  var themeWasCollapsed = false;
+  var fabKeepAlive = 0;
   var retryCount = 0;
   var savedView = null;
   function saveView(){
@@ -7893,6 +7901,40 @@ try{
       el.style.setProperty('pointer-events', 'auto', 'important');
     }catch(e){}
   }
+  function clearForcedGubeng(){
+    if(forcedGubeng){
+      try{
+        if(forcedGubeng.prevDisplay === '') forcedGubeng.el.style.removeProperty('display');
+        else forcedGubeng.el.style.display = forcedGubeng.prevDisplay;
+      }catch(e){}
+      forcedGubeng = null;
+    }
+  }
+  function forceShowGubeng(){
+    var el = document.getElementById('p100-gubeng');
+    if(!el || forcedGubeng) return;
+    var cs = null;
+    try{ cs = window.getComputedStyle(el).display; }catch(e){}
+    if(cs === 'flex') return;
+    forcedGubeng = {el: el, prevDisplay: el.style.display || ''};
+    try{ el.style.setProperty('display', 'flex', 'important'); }catch(e){}
+  }
+  function clearForcedExit(){
+    if(!forcedExitPeek) return;
+    forcedExitPeek = false;
+    try{
+      var b = document.getElementById('btn-exit-pwa');
+      if(b) b.classList.remove('is-peeked');
+    }catch(e){}
+  }
+  function forceShowExit(){
+    if(forcedExitPeek) return;
+    try{
+      var b = document.getElementById('btn-exit-pwa');
+      if(!b) return;
+      if(!b.classList.contains('is-peeked')){ b.classList.add('is-peeked'); forcedExitPeek = true; }
+    }catch(e){}
+  }
   function visibleBilah(){
     var isFilterMode = false;
     try{ isFilterMode = document.documentElement.classList.contains('sby-mode-filter'); }catch(e){}
@@ -7958,6 +8000,266 @@ try{
     var wrap = document.getElementById('floating-actions');
     if(group && group.classList.contains('is-collapsed')) return toggle || wrap;
     return wrap || toggle;
+  }
+  function getAutoScrollRow(){
+    return qs('#pilih-stasiun .auto-scroll-row') || qs('.auto-scroll-row');
+  }
+  function getGubengFilter(){
+    return document.getElementById('p100-gubeng');
+  }
+  function getStationCode(){
+    try{
+      var cards = qsa('#pilih-stasiun .station-card');
+      for(var i=0;i<cards.length;i++){
+        if(cards[i].classList.contains('is-active')){
+          var ce = cards[i].querySelector('.station-code');
+          var code = ce ? (ce.textContent || '').trim().toUpperCase() : '';
+          if(code) return code;
+        }
+      }
+      var sec = document.getElementById('papan-kedatangan');
+      if(sec){
+        var ds = (sec.getAttribute('data-station') || '').trim().toUpperCase();
+        if(ds && ds !== 'ALL') return ds;
+      }
+      try{
+        var v = localStorage.getItem('sbySelectedStations');
+        if(v){
+          var a = JSON.parse(v);
+          if(Array.isArray(a) && a.length === 1) return String(a[0] || '').trim().toUpperCase();
+          if(Array.isArray(a) && a.length === 0) return 'ALL';
+        }
+      }catch(e){}
+    }catch(e){}
+    return 'ALL';
+  }
+  function findStationCard(code){
+    var cards = qsa('#pilih-stasiun .station-card');
+    for(var i=0;i<cards.length;i++){
+      var ce = cards[i].querySelector('.station-code');
+      var c = ce ? (ce.textContent || '').trim().toUpperCase() : '';
+      if(c === code) return cards[i];
+    }
+    var all = qsa('button.station-card');
+    for(var j=0;j<all.length;j++){
+      if(all[j].closest && (all[j].closest('#sby-stasiun-floating') || all[j].closest('#sby-filter-floating') || all[j].closest('#sby-stasiun-floating-mini'))) continue;
+      var ce2 = all[j].querySelector('.station-code');
+      var c2 = ce2 ? (ce2.textContent || '').trim().toUpperCase() : '';
+      if(c2 === code) return all[j];
+    }
+    return null;
+  }
+  function ensureTempSGU(){
+    if(tempSGUPrev !== null) return;
+    var cur = getStationCode();
+    if(cur === 'SGU') return;
+    var card = findStationCard('SGU');
+    if(!card) return;
+    tempSGUPrev = cur;
+    try{ window._sbyStationClickedAt = Date.now(); }catch(e){}
+    try{ card.dataset.sbyForceClick = '1'; }catch(e){}
+    try{ card.click(); }catch(e){}
+  }
+  function waitForGubeng(){
+    var start = Date.now();
+    return new Promise(function(resolve){
+      function check(){
+        var g = getGubengFilter();
+        var ok = false;
+        try{
+          if(g){
+            var cs = window.getComputedStyle(g);
+            if(cs && cs.display !== 'none'){
+              var r = g.getBoundingClientRect();
+              if(r && r.width > 0 && r.height > 0) ok = true;
+            }
+          }
+        }catch(e){}
+        if(ok || Date.now() - start > 2500){
+          if(!ok) forceShowGubeng();
+          resolve();
+          return;
+        }
+        setTimeout(check, 100);
+      }
+      check();
+    });
+  }
+  function restoreTempSGU(){
+    if(tempSGUPrev === null) return Promise.resolve();
+    var prev = tempSGUPrev;
+    tempSGUPrev = null;
+    if(getStationCode() !== 'SGU') return Promise.resolve();
+    var sguCard = findStationCard('SGU');
+    if(!sguCard) return Promise.resolve();
+    try{ window._sbyStationClickedAt = Date.now(); }catch(e){}
+    try{ sguCard.click(); }catch(e){}
+    if(prev === 'ALL') return wait(180).then(raf2);
+    return wait(180).then(raf2).then(function(){
+      var prevCard = findStationCard(prev);
+      if(prevCard){
+        try{ prevCard.dataset.sbyForceClick = '1'; }catch(e){}
+        try{ prevCard.click(); }catch(e){}
+      }
+      return wait(180).then(raf2);
+    });
+  }
+  function getExitBtn(){
+    return document.getElementById('btn-exit-pwa');
+  }
+  function getThemeBtn(){
+    return document.querySelector('.theme-toggle-floating');
+  }
+  function startFabKeepAlive(){
+    if(fabKeepAlive) return;
+    fabKeepAlive = setInterval(function(){
+      try{
+        if(!forcedTheme) return;
+        var fab = document.getElementById('floating-actions');
+        if(!fab) return;
+        if(fab.classList.contains('is-collapsed')){
+          forceShowTheme();
+        }else{
+          fab.dispatchEvent(new Event('pointermove', {bubbles:true, cancelable:true}));
+        }
+      }catch(e){}
+    }, 2000);
+  }
+  function stopFabKeepAlive(){
+    if(fabKeepAlive){ clearInterval(fabKeepAlive); fabKeepAlive = 0; }
+  }
+  function forceShowTheme(){
+    if(forcedTheme) return;
+    try{
+      var fab = document.getElementById('floating-actions');
+      var group = document.getElementById('fab-actions-group');
+      var btn = getThemeBtn();
+      if(!btn) return;
+      themeWasCollapsed = !!(fab && fab.classList.contains('is-collapsed'));
+      if(fab) fab.classList.remove('is-collapsed');
+      if(group) group.classList.remove('is-collapsed');
+      btn.classList.remove('is-hidden-by-fab');
+      var initHide = document.getElementById('fab-theme-initial-hide');
+      if(initHide && initHide.parentNode) initHide.parentNode.removeChild(initHide);
+      forcedTheme = true;
+      startFabKeepAlive();
+    }catch(e){}
+  }
+  function clearForcedTheme(){
+    if(!forcedTheme) return;
+    forcedTheme = false;
+    stopFabKeepAlive();
+    try{
+      if(themeWasCollapsed){
+        var fab = document.getElementById('floating-actions');
+        var group = document.getElementById('fab-actions-group');
+        var btn = getThemeBtn();
+        if(fab) fab.classList.add('is-collapsed');
+        if(group) group.classList.add('is-collapsed');
+        if(btn) btn.classList.add('is-hidden-by-fab');
+      }
+    }catch(e){}
+  }
+  function getKeAtasBtn(){
+    return document.getElementById('p100-to-top');
+  }
+  function ensureKeAtasBtn(){
+    var b = getKeAtasBtn();
+    if(b) return b;
+    try{
+      var papan = document.getElementById('papan-100');
+      var list = document.getElementById('p100-list');
+      if(!papan || !list) return null;
+      b = document.createElement('button');
+      b.id = 'p100-to-top';
+      b.type = 'button';
+      b.setAttribute('aria-label', 'Scroll daftar ke atas');
+      b.title = 'Ke atas';
+      b.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>';
+      papan.appendChild(b);
+      b.addEventListener('click', function(){ try{ list.scrollTo({top:0, behavior:'smooth'}); }catch(e){ list.scrollTop = 0; } });
+      return b;
+    }catch(e){ return null; }
+  }
+  function clearForcedKeAtas(){
+    if(!forcedKeAtas) return;
+    forcedKeAtas = false;
+    try{
+      var b = document.getElementById('p100-to-top');
+      if(b) b.classList.remove('is-visible');
+    }catch(e){}
+  }
+  function forceShowKeAtas(){
+    if(forcedKeAtas) return;
+    try{
+      var b = ensureKeAtasBtn();
+      if(!b) return;
+      if(b.classList.contains('is-visible')) return;
+      b.classList.add('is-visible');
+      forcedKeAtas = true;
+    }catch(e){}
+  }
+  function getSegeraTibaSwitch(){
+    return document.getElementById('p100-switch');
+  }
+  function getScrollHint(){
+    return document.getElementById('p100-scroll-hint');
+  }
+  function ensureScrollHint(){
+    var h = getScrollHint();
+    if(h) return h;
+    try{
+      var papan = document.getElementById('papan-100');
+      if(!papan) return null;
+      h = document.createElement('div');
+      h.id = 'p100-scroll-hint';
+      h.setAttribute('aria-hidden', 'true');
+      h.innerHTML = '<span class="p100-hint-dot"></span><span id="p100-scroll-hint-text">Scroll \u2022 1 kereta lagi</span><span class="p100-hint-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>';
+      papan.appendChild(h);
+      return h;
+    }catch(e){ return null; }
+  }
+  function clearForcedScrollHint(){
+    if(!forcedScrollHint) return;
+    forcedScrollHint = false;
+    try{
+      var papan = document.getElementById('papan-100');
+      if(papan) papan.classList.remove('p100-show-scroll-hint');
+    }catch(e){}
+  }
+  function forceShowScrollHint(){
+    if(forcedScrollHint) return;
+    try{
+      var papan = document.getElementById('papan-100');
+      if(!papan) return;
+      ensureScrollHint();
+      if(papan.classList.contains('p100-show-scroll-hint')) return;
+      papan.classList.add('p100-show-scroll-hint');
+      forcedScrollHint = true;
+    }catch(e){}
+  }
+  function getModeBadge(){
+    var a = document.getElementById('sby-mode-badge');
+    var b = document.getElementById('sby-mode-badge-filter');
+    var isFilterMode = false;
+    try{ isFilterMode = document.documentElement.classList.contains('sby-mode-filter'); }catch(e){}
+    var primary = isFilterMode ? b : a;
+    var fallback = isFilterMode ? a : b;
+    if(primary){
+      var r = null;
+      try{ r = primary.getBoundingClientRect(); }catch(e){}
+      if(r && r.width > 0 && r.height > 0) return primary;
+    }
+    return fallback;
+  }
+  function ensureBilahVisible(){
+    var el = visibleBilah();
+    if(el) return el;
+    var isFilterMode = false;
+    try{ isFilterMode = document.documentElement.classList.contains('sby-mode-filter'); }catch(e){}
+    var want = isFilterMode ? document.getElementById('sby-filter-floating') : document.getElementById('sby-stasiun-floating');
+    if(want) forceShowBilah(want);
+    return want;
   }
   function getPapanTarget(){
     var list = document.getElementById('p100-list');
@@ -8028,6 +8330,20 @@ try{
       getRect:function(){ return getFilterRect(); }
     },
     {
+      title:'Auto Scroll',
+      desc:function(){
+        var tg = qs('.auto-scroll-toggle');
+        var on = tg && tg.getAttribute('data-on') === 'true';
+        return 'Ini tombol Auto Scroll di Pilih Stasiun — saat ini ' + (on ? 'aktif' : 'nonaktif') + '. Saat aktif, layar otomatis scroll ke Papan Kedatangan setiap kamu pilih stasiun. Matikan kalau mau tetap di Pilih Stasiun.';
+      },
+      prepare:function(){
+        var row = getAutoScrollRow();
+        if(row) scrollCenter(row);
+        return wait(120).then(raf2);
+      },
+      getRect:function(){ return rectOf(getAutoScrollRow()); }
+    },
+    {
       title:'Kartu Stasiun',
       desc:function(){
         var c = getKartu();
@@ -8046,12 +8362,12 @@ try{
       getRect:function(){ var c = getKartu(); return rectOf(c); }
     },
     {
-      title:'Floating Bar FAB',
+      title:'Aksi Cepat',
       desc:function(){
         var group = document.getElementById('fab-actions-group');
         var collapsed = group && group.classList.contains('is-collapsed');
-        if(collapsed) return 'Ini tombol + di kanan bawah (FAB). Ketuk + untuk membuka aksi cepat: Layar Penuh, Pilih Stasiun, Segarkan, dan Salin Daftar. Ketuk lagi untuk menutupnya.';
-        return 'Ini aksi cepat (FAB) di kanan bawah yang sedang terbuka: Layar Penuh, Pilih Stasiun, Segarkan, dan Salin Daftar. Ketuk tombol + untuk menutupnya.';
+        if(collapsed) return 'Ini tombol + di kanan bawah. Ketuk + untuk membuka aksi cepat: Layar Penuh, Pilih Stasiun, Segarkan, dan Salin Daftar. Ketuk lagi untuk menutupnya.';
+        return 'Ini aksi cepat di kanan bawah yang sedang terbuka: Layar Penuh, Pilih Stasiun, Segarkan, dan Salin Daftar. Ketuk tombol + untuk menutupnya.';
       },
       prepare:function(){ return wait(60).then(raf2); },
       getRect:function(){ return rectOf(getFabTarget()); }
@@ -8061,8 +8377,8 @@ try{
       desc:function(){
         var isFilterMode = false;
         try{ isFilterMode = document.documentElement.classList.contains('sby-mode-filter'); }catch(e){}
-        if(isFilterMode) return 'Ini bilah apung di bawah layar, sedang di mode Filter. Geser kiri-kanan untuk pindah filter tanpa scroll ke atas. Bilah ini muncul saat kamu sudah scroll melewati Pilih Stasiun.';
-        return 'Ini bilah apung di bawah layar. Geser kiri-kanan untuk pindah stasiun tanpa scroll ke atas. Bilah ini muncul saat kamu sudah scroll melewati Pilih Stasiun.';
+        if(isFilterMode) return 'Ini bilah apung di bawah layar, sedang di mode Filter. Geser kiri-kanan untuk pindah filter tanpa scroll ke atas. Usap bilah ke bawah untuk kembali ke Stasiun; usap ke bawah sekali lagi untuk menciutkannya menjadi Bilah Mini. Bilah ini muncul saat kamu sudah scroll melewati Pilih Stasiun.';
+        return 'Ini bilah apung di bawah layar. Geser kiri-kanan untuk pindah stasiun tanpa scroll ke atas. Usap bilah ke atas untuk pindah ke Filter — tanpa mengetuk tombolnya. Usap bilah ke bawah untuk menciutkannya menjadi Bilah Mini; ketuk Bilah Mini “Pilih Stasiun” untuk membukanya lagi. Bilah ini muncul saat kamu sudah scroll melewati Pilih Stasiun.';
       },
       prepare:function(){
         var el = visibleBilah();
@@ -8088,6 +8404,43 @@ try{
       }
     },
     {
+      title:'Tombol Ganti Mode',
+      desc:function(){ return 'Ini tombol Ganti Mode di kiri atas Bilah Apung — tombol kecil di atas bilah, menempel di ujung kirinya. Saat bilah menampilkan stasiun, tombolnya bertuliskan ▲ Filter; ketuk untuk berganti ke Bilah Filter. Saat bilah menampilkan filter, tombolnya bertuliskan ▼ Stasiun; ketuk untuk kembali ke Bilah Stasiun.'; },
+      prepare:function(){
+        ensureBilahVisible();
+        return wait(140).then(raf2);
+      },
+      getRect:function(){
+        var b = getModeBadge();
+        var r = rectOf(b);
+        if(r) return r;
+        ensureBilahVisible();
+        return rectOf(getModeBadge());
+      }
+    },
+    {
+      title:'Filter Gubeng',
+      desc:function(){
+        return 'Ini Filter Gubeng — untuk menyaring kedatangan di Surabaya Gubeng per sisi stasiun. Pilih Semua untuk semua kedatangan, Gubeng Baru untuk KA jarak jauh selain KA ekonomi, atau Gubeng Lama untuk Commuter Line dan KA ekonomi (Pasundan, Logawa, Sri Tanjung, Probowangi).';
+      },
+      prepare:function(){
+        ensureTempSGU();
+        return waitForGubeng().then(function(){
+          var g = getGubengFilter();
+          if(g) scrollCenter(g);
+          return wait(140).then(raf2);
+        });
+      },
+      getRect:function(){
+        var r = rectOf(getGubengFilter());
+        if(r) return r;
+        forceShowGubeng();
+        r = rectOf(getGubengFilter());
+        if(r) return r;
+        return rectOf(document.getElementById('p100-filter'));
+      }
+    },
+    {
       title:'Papan Kedatangan',
       desc:function(){ return 'Ini Papan Kedatangan — daftar kereta yang akan tiba. Scroll daftar ini untuk melihat semua kereta, ketuk satu baris untuk detail.'; },
       prepare:function(){
@@ -8099,13 +8452,128 @@ try{
         return wait(140).then(raf2);
       },
       getRect:function(){ return getPapanRect(); }
+    },
+    {
+      title:'Filter Segera Tiba',
+      desc:function(){ return 'Ini tombol Filter Segera Tiba di Papan Kedatangan — sakelar untuk menyaring daftar. Saat aktif, hanya kereta yang tiba dalam 60 menit ke depan yang ditampilkan; saat nonaktif, semua jadwal ditampilkan.'; },
+      prepare:function(){
+        var target = getPapanTarget();
+        if(target) scrollStart(target);
+        return wait(120).then(raf2).then(function(){
+          var s = getSegeraTibaSwitch();
+          if(s) scrollCenter(s);
+          return wait(140).then(raf2);
+        });
+      },
+      getRect:function(){
+        var r = rectOf(getSegeraTibaSwitch());
+        if(r) return r;
+        return rectOf(document.getElementById('p100-filter'));
+      }
+    },
+    {
+      title:'Petunjuk Scroll',
+      desc:function(){ return 'Ini Petunjuk Scroll di bawah Papan Kedatangan — muncul saat masih ada kereta di bawah yang belum terlihat. Tulisannya “Scroll • X kereta lagi” menunjukkan berapa kereta lagi di bawah; petunjuk ini hilang saat daftar sudah sampai bawah.'; },
+      prepare:function(){
+        var target = getPapanTarget();
+        if(target) scrollStart(target);
+        var list = document.getElementById('p100-list');
+        if(list){
+          try{ window._sbyAllowListScrollUntil = Date.now() + 2000; }catch(e){}
+          try{ list.scrollTop = 0; }catch(e){}
+        }
+        return wait(160).then(raf2).then(function(){
+          forceShowScrollHint();
+          var h = getScrollHint();
+          if(h) scrollCenter(h);
+          return wait(140).then(raf2);
+        });
+      },
+      getRect:function(){
+        forceShowScrollHint();
+        return rectOf(getScrollHint());
+      }
+    },
+    {
+      title:'Tombol Ke Atas',
+      desc:function(){ return 'Ini tombol Ke Atas — muncul saat daftar Papan Kedatangan di-scroll ke bawah. Ketuk untuk kembali ke atas daftar kereta.'; },
+      prepare:function(){
+        ensureKeAtasBtn();
+        var target = getPapanTarget();
+        if(target) scrollStart(target);
+        var list = document.getElementById('p100-list');
+        if(list){
+          try{ window._sbyAllowListScrollUntil = Date.now() + 2000; }catch(e){}
+          try{ list.scrollTop = Math.min(list.scrollHeight || 600, 400); }catch(e){}
+        }
+        return wait(220).then(raf2).then(function(){
+          forceShowKeAtas();
+          var b = getKeAtasBtn();
+          if(b) scrollCenter(b);
+          return wait(140).then(raf2);
+        });
+      },
+      getRect:function(){
+        forceShowKeAtas();
+        return rectOf(getKeAtasBtn());
+      }
+    },
+    {
+      title:'Tombol Mode Gelap/Terang',
+      desc:function(){ return 'Ini tombol Mode Gelap/Terang di kanan atas, di sebelah tombol panduan (?). Ketuk untuk berganti tampilan. Tulisannya menunjukkan mode yang akan aktif: kalau tertulis Gelap, ketuk untuk pindah ke mode gelap; kalau tertulis Terang, ketuk untuk kembali ke mode terang.'; },
+      prepare:function(){
+        forceShowTheme();
+        return wait(140).then(raf2);
+      },
+      getRect:function(){
+        forceShowTheme();
+        return rectOf(getThemeBtn());
+      }
+    },
+    {
+      title:'Tombol Panduan',
+      desc:function(){ return 'Ini tombol Panduan (?). Fungsinya membuka tur panduan ini: tur singkat yang memperkenalkan bagian-bagian utama halaman, langkah demi langkah — dari memilih stasiun dan memakai filter, sampai fungsi tombol-tombol utama. Gunakan tombol ini kapan pun lupa fungsi suatu bagian, atau saat pertama kali membuka papan kedatangan.'; },
+      prepare:function(){
+        forceShowTheme();
+        return wait(140).then(raf2);
+      },
+      getRect:function(){
+        forceShowTheme();
+        return rectOf(document.getElementById('sby-tour-start'));
+      }
+    },
+    {
+      title:'Tombol Keluar',
+      desc:function(){
+        return 'Ini tombol Keluar — Gunakan tombol ini untuk keluar/menutup halaman.';
+      },
+      prepare:function(){
+        forceShowExit();
+        return wait(300).then(raf2);
+      },
+      getRect:function(){
+        forceShowExit();
+        return rectOf(getExitBtn());
+      }
     }
   ];
   function getFrameRadius(){
     try{
       if(current === 0) return '999px';
-      if(current === 3) return '999px';
-      if(current === 2){
+      if(current === 6) return '999px';
+      if(current === 5 || current === 8 || current === 9 || current === 10 || current === 11 || current === 12) return '999px';
+      if(current === 13){
+        var eb = getExitBtn();
+        if(eb){
+          var ecs = null;
+          try{ ecs = window.getComputedStyle(eb); }catch(e){}
+          if(ecs && ecs.borderRadius && ecs.borderRadius !== '0px' && ecs.borderRadius !== '0%') return ecs.borderRadius;
+          if(eb.classList.contains('is-docked-left')) return '0 999px 999px 0';
+          if(eb.classList.contains('is-docked-right')) return '999px 0 0 999px';
+        }
+        return '999px 0 0 999px';
+      }
+      if(current === 3){
         var ft = getFabTarget();
         if(ft){
           var cs = null;
@@ -8114,7 +8582,7 @@ try{
         }
         return '999px';
       }
-      if(current === 1){
+      if(current === 2){
         var kc = getKartu();
         if(kc){
           var cs2 = null;
@@ -8128,7 +8596,7 @@ try{
   }
   function placeOverlay(r){
     var W = vw(), H = vh();
-    var isFilterStep = (current === 0);
+    var isFilterStep = (current === 0 || current === 6);
     var padX = isFilterStep ? 0 : ((r.left <= 1 && r.right >= W - 1) ? 0 : 6);
     var padY = isFilterStep ? 0 : 4;
     var hl = {left:Math.max(0, r.left - padX), top:Math.max(0, r.top - padY), right:Math.min(W, r.right + padX), bottom:Math.min(H, r.bottom + padY)};
@@ -8184,8 +8652,16 @@ try{
   }
   function showStep(i, doScroll){
     if(!active) return;
-    current = Math.max(0, Math.min(steps.length - 1, i));
-    if(current !== 3) clearForcedBilah();
+    var target = Math.max(0, Math.min(steps.length - 1, i));
+    if(current === 6 && target === 7 && tempSGUPrev !== null){
+      return restoreTempSGU().then(function(){ return showStep(i, doScroll); });
+    }
+    current = target;
+    if(current !== 4 && current !== 5) clearForcedBilah();
+    if(current !== 6) clearForcedGubeng();
+    if(current !== 13) clearForcedExit();
+    if(current !== 10) clearForcedKeAtas();
+    if(current !== 9) clearForcedScrollHint();
     renderCard();
     var step = steps[current];
     var run = (doScroll === false) ? Promise.resolve() : Promise.resolve().then(function(){ return step.prepare(); });
@@ -8196,9 +8672,16 @@ try{
           retryCount++;
           return wait(500).then(function(){ return showStep(current, true); });
         }
+        restoreTempSGU();
         tour.hidden = true;
         active = false;
+        try{ if(startBtn) startBtn.style.display = ''; }catch(e){}
         clearForcedBilah();
+        clearForcedGubeng();
+        clearForcedExit();
+        clearForcedKeAtas();
+        clearForcedScrollHint();
+        clearForcedTheme();
         restoreView();
         return null;
       }
@@ -8206,10 +8689,15 @@ try{
       if(doScroll !== false && !isFullyOnScreen(r)){
         var el = null;
         if(current === 0) el = qs('#pilih-stasiun [aria-label="Filter kategori dan status kedatangan - multi-select"]');
-        if(current === 1) el = getKartu();
-        if(current === 4) el = getPapanTarget();
+        if(current === 1) el = getAutoScrollRow();
+        if(current === 2) el = getKartu();
+        if(current === 6) el = getGubengFilter();
+        if(current === 7) el = getPapanTarget();
+        if(current === 8) el = getSegeraTibaSwitch();
+        if(current === 9) el = getScrollHint();
+        if(current === 10) el = getKeAtasBtn();
         if(el){
-          if(current === 4) scrollStart(el); else scrollCenter(el);
+          if(current === 7) scrollStart(el); else scrollCenter(el);
           return wait(140).then(raf2).then(function(){
             var r2 = step.getRect();
             if(r2) placeOverlay(r2);
@@ -8233,18 +8721,25 @@ try{
   }
   function startTour(){
     if(active) return;
+    tempSGUPrev = null;
     saveView();
     active = true;
     current = 0;
     retryCount = 0;
     tour.hidden = false;
-    try{ if(startBtn) startBtn.style.display = 'none'; }catch(e){}
     showStep(0, true);
   }
   function closeTour(){
+    try{ localStorage.setItem('sby_tour_shown', '1'); }catch(e){}
+    restoreTempSGU();
     active = false;
     tour.hidden = true;
     clearForcedBilah();
+    clearForcedGubeng();
+    clearForcedExit();
+    clearForcedKeAtas();
+    clearForcedScrollHint();
+    clearForcedTheme();
     restoreView();
     try{ if(startBtn) startBtn.style.display = ''; }catch(e){}
   }
@@ -8280,6 +8775,18 @@ try{
     scrollT = setTimeout(refresh, 120);
   }, {passive:true});
   if(startBtn) startBtn.addEventListener('click', startTour);
+  (function autoStartTour(){
+    function alreadyShown(){
+      try{ return localStorage.getItem('sby_tour_shown') === '1'; }catch(e){ return true; }
+    }
+    if(alreadyShown()) return;
+    function tryStart(){
+      if(alreadyShown()) return;
+      startTour();
+    }
+    if(document.readyState === 'complete') setTimeout(tryStart, 900);
+    else window.addEventListener('load', function(){ setTimeout(tryStart, 900); });
+  })();
   window.SBY_START_TOUR = startTour;
 })();
 }catch(e){ try{ console.warn('[SBY Tour] init gagal', e && e.message || e); }catch(_){} }
