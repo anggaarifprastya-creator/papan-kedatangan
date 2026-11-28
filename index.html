@@ -5909,7 +5909,8 @@ try{
       
       if(typeof _lastStationClickAt !== 'undefined' && Date.now() - _lastStationClickAt < 1500){ if(!syncFromOriginal._retryTimer){ var _waitClick = 1500 - (Date.now() - _lastStationClickAt) + 50; syncFromOriginal._retryTimer = setTimeout(function(){ syncFromOriginal._retryTimer = null; syncFromOriginal(); }, _waitClick); } return; }
       if(typeof _stationUserDraggedAt !== 'undefined' && _stationUserDraggedAt && Date.now() - _stationUserDraggedAt < 400){ if(!syncFromOriginal._retryTimer){ syncFromOriginal._retryTimer = setTimeout(function(){ syncFromOriginal._retryTimer = null; syncFromOriginal(); }, 450); } return; }
-      var cards = document.querySelectorAll('button.station-card');
+      var _ps = document.getElementById('pilih-stasiun');
+      var cards = _ps ? _ps.querySelectorAll('button.station-card') : document.querySelectorAll('button.station-card');
       var reactCodes = [];
       for(var i=0;i<cards.length;i++){
         if(cards[i].classList.contains('is-active')){
@@ -5958,6 +5959,34 @@ try{
       for(var i=0;i<all.length;i++){
         var r = all[i].rect;
         if(r.top >= -TOL && r.bottom <= vh + TOL && r.left >= -TOL && r.right <= vw + TOL) out.push(all[i]);
+      }
+    }catch(e){}
+    return out;
+  }
+  function isWadahKartuTerlihat(){
+    try{
+      var wadah = document.querySelector('#pilih-stasiun .station-chain-scroll');
+      if(!wadah) return getAnyVisibleOriginalStationCards().length > 0;
+      var r = wadah.getBoundingClientRect();
+      if(!r || r.width <= 0 || r.height <= 0) return false;
+      var vw = window.innerWidth || document.documentElement.clientWidth || 0;
+      var vh = window.innerHeight || document.documentElement.clientHeight || 0;
+      if(!vw || !vh) return false;
+      var TOL = 2;
+      return r.bottom > -TOL && r.top < vh + TOL && r.right > -TOL && r.left < vw + TOL;
+    }catch(e){ return false; }
+  }
+  function getAnyVisibleOriginalStationCards(){
+    var out = [];
+    try{
+      var vw = window.innerWidth || document.documentElement.clientWidth || 0;
+      var vh = window.innerHeight || document.documentElement.clientHeight || 0;
+      if(!vw || !vh) return out;
+      var TOL = 2;
+      var all = getOriginalStationCardsWithRect();
+      for(var i=0;i<all.length;i++){
+        var r = all[i].rect;
+        if(r.bottom > -TOL && r.top < vh + TOL && r.right > -TOL && r.left < vw + TOL) out.push(all[i]);
       }
     }catch(e){}
     return out;
@@ -6065,68 +6094,34 @@ try{
   }
   function applyVisibility(){
 
+
     try{
-      if(isDesktopPortrait()){
-        var _hDP = document.documentElement;
-        _hDP.classList.remove('sby-stasiun-floating-waiting');
-        _hDP.classList.add('sby-stasiun-floating-shown');
-        if(!_hDP.classList.contains('sby-stasiun-floating-open') && !_hDP.classList.contains('sby-stasiun-floating-collapsed')){
-          _hDP.classList.add('sby-stasiun-floating-open');
+      if(isWadahKartuTerlihat()){
+        clearTimeout(visibilityTimer);
+        var _html = document.documentElement;
+        if(!_html.classList.contains('sby-stasiun-floating-waiting')){
+          _html.classList.add('sby-stasiun-floating-waiting');
+          _html.classList.remove('sby-stasiun-floating-shown');
         }
-        lastShouldHide = false;
-        boardVisible = true;
+        lastShouldHide = true;
         return;
       }
     }catch(e){}
-
-    var _isDesktopPortrait = false;
-    try{ _isDesktopPortrait = isDesktopPortrait(); }catch(e){}
-
-    var _fullyForHide = null;
-    var _isException = false;
+    var _boardAny = false;
     try{
-      _fullyForHide = getFullyVisibleOriginalStationCards();
-      if(_isDesktopPortrait){
-
-        
-        _fullyForHide = [];
-      }
-      if(_fullyForHide.length){
-        _isException = isBottomTwoException(_fullyForHide);
-        if(!_isException){
-          clearTimeout(visibilityTimer);
-          var _html = document.documentElement;
-          if(!_html.classList.contains('sby-stasiun-floating-waiting')){
-            _html.classList.add('sby-stasiun-floating-waiting');
-            _html.classList.remove('sby-stasiun-floating-shown');
-          }
-          lastShouldHide = true;
-          return;
-        }
-
-      }
-    }catch(e){}
-    var y = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
-
-    if(_isDesktopPortrait){ try{ y = Math.max(y, getBoardInnerScroll()); }catch(e){} }
-
-    
-    try{
-      var _board = document.getElementById('papan-kedatangan') || document.getElementById('board') || document.querySelector('[id*="papan"]');
+      var _board = document.getElementById('papan-kedatangan') || document.getElementById('papan-100') || document.getElementById('board');
       if(_board){
         var _r = _board.getBoundingClientRect();
         var _vh = window.innerHeight || document.documentElement.clientHeight || 0;
-
-        
-        var _inArea = _r.top < _vh * 0.9 && _r.bottom > _vh * 0.15;
-        var _farOut = _r.bottom < _vh * 0.02 || _r.top > _vh * 1.05;
-        if(_inArea && y > 80) boardVisible = true;
-        else if(_farOut) boardVisible = false;
-
+        _boardAny = _r.bottom > 0 && _r.top < _vh;
+      } else {
+        _boardAny = boardVisible;
       }
-    }catch(e){}
+    }catch(e){
+      _boardAny = boardVisible;
+    }
 
-    var shouldHide = !boardVisible || y <= 80;
+    var shouldHide = !_boardAny;
 
     if(shouldHide === lastShouldHide) return;
     clearTimeout(visibilityTimer);
