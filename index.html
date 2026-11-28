@@ -2778,6 +2778,25 @@ try{
   </svg>
   <span class="btn-label">Keluar</span>
 </button>
+<script>
+try{
+  var b=document.getElementById('btn-exit-pwa');
+  if(b){
+    var e=null;
+    var r=0.5;
+    try{ e=localStorage.getItem('sby_exit_edge'); var t=localStorage.getItem('sby_exit_top'); if(t!==null){ var pr=parseFloat(t); if(!isNaN(pr)) r=pr; } }catch(err){}
+    if(e==='left'||e==='right'){
+      b.classList.remove('is-docked-left','is-docked-right');
+      b.classList.add(e==='left'?'is-docked-left':'is-docked-right');
+      var h=window.innerHeight||document.documentElement.clientHeight||600;
+      var y=r*h;
+      y=Math.max(64,Math.min(h-64,y));
+      b.style.top=y+'px';
+      window.__sbyExitDockRestored=true;
+    }
+  }
+}catch(err){}
+</script>
 
 <script id="sby-mid-patches">
 
@@ -3560,6 +3579,7 @@ try{
       if(save){ try{ localStorage.setItem(EDGE_KEY,edge); localStorage.setItem(TOP_KEY,String(y/h)); }catch(e){} }
     }
     function restoreDock(){
+      try{ if(window.__sbyExitDockRestored) return; }catch(e){}
       try{
         var edge=localStorage.getItem(EDGE_KEY);
         var topStr=localStorage.getItem(TOP_KEY);
