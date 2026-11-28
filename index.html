@@ -2151,6 +2151,10 @@ html:not(#__sby) #papan-100 .p100-sentinel .p100-sentinel-text { min-width: 0; o
   display:inline-flex;
   align-items:center;
   gap:6px;
+  width:max-content;
+  max-width:calc(100% - 32px);
+  box-sizing:border-box;
+  flex:0 0 auto;
   background:#0F172A;
   color:#fff;
   border-radius:999px;
@@ -2165,6 +2169,10 @@ html:not(#__sby) #papan-100 .p100-sentinel .p100-sentinel-text { min-width: 0; o
   visibility:hidden;
   transition:opacity .25s ease, visibility .25s ease;
   animation:p100-hint-float 2.2s ease-in-out infinite;
+}
+#papan-100 #p100-scroll-hint #p100-scroll-hint-text{
+  white-space:nowrap;
+  flex:0 0 auto;
 }
 #papan-100.p100-show-scroll-hint #p100-scroll-hint{
   opacity:1;
@@ -7570,8 +7578,15 @@ try{
         var listRect = list.getBoundingClientRect();
         var belowCount = 0;
         for(var i = 0; i < rows.length; i++){
-          var rBottom = rows[i].getBoundingClientRect().bottom;
-          if(rBottom > listRect.bottom + 1) belowCount++;
+          var r = rows[i].getBoundingClientRect();
+          var rH = r.bottom - r.top;
+          if(r.bottom <= listRect.top + 1) continue;
+          if(r.top >= listRect.bottom - 1){ belowCount++; continue; }
+          if(r.bottom > listRect.bottom + 1){
+            if(r.top <= listRect.top && r.bottom >= listRect.bottom) continue;
+            var vis = listRect.bottom - Math.max(r.top, listRect.top);
+            if(rH <= 0 || vis / rH < 0.75) belowCount++;
+          }
         }
         var notRendered = total - rows.length;
         if(notRendered < 0) notRendered = 0;
